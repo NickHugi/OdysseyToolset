@@ -1,6 +1,10 @@
 from PyQt5.QtCore import QSettings, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from pykotor.formats.erf import ERF
+
+from pykotor.formats.rim import RIM
+
 from pykotor.globals import resource_types
 
 from installation import Installation
@@ -43,6 +47,7 @@ class Toolset(QMainWindow):
 
     def init_ui_events(self):
         self.ui.installation_combo.currentIndexChanged.connect(self.installation_combo_changed)
+        self.ui.modules_combo.currentIndexChanged.connect(self.modules_combo_changed)
 
     def refresh_installation_list(self):
         self.ui.installation_combo.clear()
@@ -75,9 +80,9 @@ class Toolset(QMainWindow):
         self.core_tree_proxy.setFilterFixedString("")
         self.modules_tree_proxy.setFilterFixedString("")
         self.override_tree_proxy.setFilterFixedString("")
-        # self.core_tree_model.removeRows(0, self.tree_model.rowCount())
-        # self.modules_tree_model.removeRows(0, self.tree_model.rowCount())
-        # self.override_tree_model.removeRows(0, self.tree_model.rowCount())
+        self.core_tree_model.removeRows(0, self.core_tree_model.rowCount())
+        self.modules_tree_model.removeRows(0, self.modules_tree_model.rowCount())
+        self.override_tree_model.removeRows(0, self.override_tree_model.rowCount())
 
     def build_trees(self):
         self.clear_trees()
@@ -87,7 +92,9 @@ class Toolset(QMainWindow):
 
         self.ui.modules_combo.clear()
         for name, path in self.active_installation.get_module_list().items():
-            self.ui.modules_combo.addItem(name)
+            item = QStandardItem(name)
+            # item.path = path
+            self.ui.modules_combo.addItem(name, path)
 
     def build_tree_add_node(self, parent, name, type=""):
         items = [QStandardItem(str(name)), QStandardItem(str(type.upper()))]
@@ -106,10 +113,14 @@ class Toolset(QMainWindow):
         return items[0]
 
     def build_tree_add_resource(self, parent, res_ref, res_type):
-        if hasattr(parent, "node_" + res_type.category) is not True:
-            category_node = self.build_tree_add_node(parent, res_type.category)
-            setattr(parent, "node_" + res_type.category, category_node)
-        return self.build_tree_add_node(getattr(parent, "node_" + res_type.category), res_ref, res_type.extension)
+        for i in range(parent.rowCount()):
+            if parent.item(i, 0).text() == res_type.category:
+                node = parent.item(i, 0)
+                break
+        else:
+            node = self.build_tree_add_node(parent, res_type.category)
+
+        return self.build_tree_add_node(node, res_ref, res_type.extension)
 
     # Events
     def installation_combo_changed(self, index):
@@ -119,3 +130,17 @@ class Toolset(QMainWindow):
         if index > 0:
             installation_name = self.ui.installation_combo.itemText(index)
             self.load_installation(installation_name)
+
+    def modules_combo_changed(self, index):
+        self.modules_tree_model.removeRows(0, self.modules_tree_model.rowCount())
+        path: str = self.ui.modules_combo.itemData(index)
+
+        if ".rim" in path:
+            resource_list = RIM.fetch_resource_list(path)
+        else:
+            resource_list = ERF.get_resource_list(path)
+
+        self.modules_tree_model.removeRows(0, self.modules_tree_model.rowCount())
+        for entry in resource_list:
+            self.build_tree_add_resource(self.modules_tree_model, entry["res_ref"], entry["res_type"])
+
