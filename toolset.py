@@ -25,13 +25,13 @@ class Toolset(QMainWindow):
         self.installations = {}
         self.active_installation: Installation = None
 
-        self.core_tree_model = QStandardItemModel()
-        self.core_tree_proxy = QSortFilterProxyModel(self)
+        self.core_model = QStandardItemModel()
+        self.core_proxy = QSortFilterProxyModel(self)
         self.modules_model = QStandardItemModel()
         self.modules_proxy = QSortFilterProxyModel(self)
         self.override_model = QStandardItemModel()
         self.override_proxy = QSortFilterProxyModel(self)
-        self.init_tree_model(self.ui.core_tree, self.core_tree_model, self.core_tree_proxy)
+        self.init_tree_model(self.ui.core_tree, self.core_model, self.core_proxy)
         self.init_tree_model(self.ui.modules_tree, self.modules_model, self.modules_proxy)
         self.init_tree_model(self.ui.override_tree, self.override_model, self.override_proxy)
 
@@ -78,10 +78,10 @@ class Toolset(QMainWindow):
 
     def clear_trees(self):
         self.ui.filter_edit.setText("")
-        self.core_tree_proxy.setFilterFixedString("")
+        self.core_proxy.setFilterFixedString("")
         self.modules_proxy.setFilterFixedString("")
         self.override_proxy.setFilterFixedString("")
-        self.core_tree_model.removeRows(0, self.core_tree_model.rowCount())
+        self.core_model.removeRows(0, self.core_model.rowCount())
         self.modules_model.removeRows(0, self.modules_model.rowCount())
         self.override_model.removeRows(0, self.override_model.rowCount())
 
@@ -89,7 +89,7 @@ class Toolset(QMainWindow):
         self.clear_trees()
         for entry in self.active_installation.chitin.keys.values():
             res_type = entry.res_type
-            node = self.build_tree_add_resource(self.core_tree_model, entry.res_ref, res_type)
+            node = self.build_tree_add_resource(self.core_model, entry.res_ref, res_type)
 
         self.ui.modules_combo.clear()
         for name, path in self.active_installation.get_module_list().items():
@@ -152,7 +152,14 @@ class Toolset(QMainWindow):
         data = None
 
         if self.ui.tree_tabs.currentIndex() == 0:  # CORE
-            pass
+            index0 = self.ui.core_tree.selectedIndexes()[0]
+            index1 = self.ui.core_tree.selectedIndexes()[1]
+            res_ref_item = self.core_model.itemFromIndex(self.core_proxy.mapToSource(index0))
+            res_type_item = self.core_model.itemFromIndex(self.core_proxy.mapToSource(index1))
+            res_ref = res_ref_item.text()
+            res_type = resource_types[res_type_item.text().lower()]
+
+            data = self.active_installation.chitin.fetch_resource(res_ref, res_type)
         if self.ui.tree_tabs.currentIndex() == 1:  # MODULES
             if len(self.ui.modules_tree.selectedIndexes()) > 0:
                 index0 = self.ui.modules_tree.selectedIndexes()[0]
