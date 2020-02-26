@@ -1,3 +1,5 @@
+import os
+
 from pykotor.formats.key import KEY
 
 
@@ -12,15 +14,14 @@ class Installation:
         self.textures_path = self.root_path + "/texturepacks"
 
         self.chitin = None
-        self.modules = {}
-        self.override = {}
-        self.textures = {}
 
-        self.load()
-
-    def load(self):
-        self.load_chitin()
-
-    def load_chitin(self):
         self.chitin = KEY.from_path(self.chitin_path)
+        self.get_module_list()
 
+    def get_module_list(self):
+        modules = {}
+        for file in os.listdir(self.modules_path):
+            file_name = file[:file.index('.')]
+            file_path = self.modules_path + "/" + file
+            modules[file] = file_path
+        return modules

@@ -19,7 +19,7 @@ class Toolset(QMainWindow):
 
         self.settings = QSettings("toolset")
         self.installations = {}
-        self.active_installation = None
+        self.active_installation: Installation = None
 
         self.core_tree_model = QStandardItemModel()
         self.core_tree_proxy = QSortFilterProxyModel(self)
@@ -75,16 +75,19 @@ class Toolset(QMainWindow):
         self.core_tree_proxy.setFilterFixedString("")
         self.modules_tree_proxy.setFilterFixedString("")
         self.override_tree_proxy.setFilterFixedString("")
-        #self.core_tree_model.removeRows(0, self.tree_model.rowCount())
-        #self.modules_tree_model.removeRows(0, self.tree_model.rowCount())
-        #self.override_tree_model.removeRows(0, self.tree_model.rowCount())
+        # self.core_tree_model.removeRows(0, self.tree_model.rowCount())
+        # self.modules_tree_model.removeRows(0, self.tree_model.rowCount())
+        # self.override_tree_model.removeRows(0, self.tree_model.rowCount())
 
     def build_trees(self):
         self.clear_trees()
-
         for entry in self.active_installation.chitin.keys.values():
             res_type = resource_types[entry.res_type]
             self.build_tree_add_resource(self.core_tree_model, entry.res_ref, res_type)
+
+        self.ui.modules_combo.clear()
+        for name, path in self.active_installation.get_module_list().items():
+            self.ui.modules_combo.addItem(name)
 
     def build_tree_add_node(self, parent, name, type=""):
         items = [QStandardItem(str(name)), QStandardItem(str(type.upper()))]
