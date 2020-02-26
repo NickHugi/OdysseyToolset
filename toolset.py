@@ -49,6 +49,7 @@ class Toolset(QMainWindow):
         self.ui.installation_combo.currentIndexChanged.connect(self.installation_combo_changed)
         self.ui.modules_combo.currentIndexChanged.connect(self.modules_combo_changed)
         self.ui.button_open.clicked.connect(self.open_button_clicked)
+        self.ui.button_extract.clicked.connect(self.extract_button_clicked)
 
     def refresh_installation_list(self):
         self.ui.installation_combo.clear()
@@ -126,6 +127,47 @@ class Toolset(QMainWindow):
 
         return self.build_tree_add_node(node, res_ref, res_type.extension)
 
+    def get_selected_data(self):
+        data = []
+
+        if self.ui.tree_tabs.currentIndex() == 0:  # CORE
+            index0 = self.ui.core_tree.selectedIndexes()[0]
+            index1 = self.ui.core_tree.selectedIndexes()[1]
+            res_ref_item = self.core_model.itemFromIndex(self.core_proxy.mapToSource(index0))
+            res_type_item = self.core_model.itemFromIndex(self.core_proxy.mapToSource(index1))
+            res_ref = res_ref_item.text()
+            res_type = resource_types[res_type_item.text().lower()]
+
+            data.append(self.active_installation.chitin.fetch_resource(res_ref, res_type))
+        if self.ui.tree_tabs.currentIndex() == 1:  # MODULES
+            if len(self.ui.modules_tree.selectedIndexes()) > 0:
+                index0 = self.ui.modules_tree.selectedIndexes()[0]
+                index1 = self.ui.modules_tree.selectedIndexes()[1]
+                res_ref_item = self.modules_model.itemFromIndex(self.modules_proxy.mapToSource(index0))
+                res_type_item = self.modules_model.itemFromIndex(self.modules_proxy.mapToSource(index1))
+                res_ref = res_ref_item.text()
+                res_type = resource_types[res_type_item.text().lower()]
+
+                path = self.ui.modules_combo.currentData()
+                if ".rim" in path:
+                    data.append(RIM.fetch_resource(path, res_ref, res_type))
+                else:
+                    data.append(ERF.fetch_resource(path, res_ref, res_type))
+        if self.ui.tree_tabs.currentIndex() == 2:  # OVERRIDE
+            if len(self.ui.override_tree.selectedIndexes()) > 0:
+                index0 = self.ui.override_tree.selectedIndexes()[0]
+                index1 = self.ui.override_tree.selectedIndexes()[1]
+                res_ref_item = self.override_model.itemFromIndex(self.override_proxy.mapToSource(index0))
+                res_type_item = self.override_model.itemFromIndex(self.override_proxy.mapToSource(index1))
+                res_ref = res_ref_item.text()
+                res_type = resource_types[res_type_item.text().lower()]
+
+                file = open(self.active_installation.override_path + "/" + res_ref + "." + res_type.extension, "rb")
+                data.append(file.read())
+                file.close()
+
+        return data
+
     # Events
     def installation_combo_changed(self, index):
         self.clear_trees()
@@ -149,41 +191,12 @@ class Toolset(QMainWindow):
             self.build_tree_add_resource(self.modules_model, entry["res_ref"], entry["res_type"])
 
     def open_button_clicked(self):
-        data = None
+        pass
 
-        if self.ui.tree_tabs.currentIndex() == 0:  # CORE
-            index0 = self.ui.core_tree.selectedIndexes()[0]
-            index1 = self.ui.core_tree.selectedIndexes()[1]
-            res_ref_item = self.core_model.itemFromIndex(self.core_proxy.mapToSource(index0))
-            res_type_item = self.core_model.itemFromIndex(self.core_proxy.mapToSource(index1))
-            res_ref = res_ref_item.text()
-            res_type = resource_types[res_type_item.text().lower()]
+    def extract_button_clicked(self):
+        data = self.get_selected_data()[0]
+        path = QFileDialog.getSaveFileName(self, "Extract file to")[0]
 
-            data = self.active_installation.chitin.fetch_resource(res_ref, res_type)
-        if self.ui.tree_tabs.currentIndex() == 1:  # MODULES
-            if len(self.ui.modules_tree.selectedIndexes()) > 0:
-                index0 = self.ui.modules_tree.selectedIndexes()[0]
-                index1 = self.ui.modules_tree.selectedIndexes()[1]
-                res_ref_item = self.modules_model.itemFromIndex(self.modules_proxy.mapToSource(index0))
-                res_type_item = self.modules_model.itemFromIndex(self.modules_proxy.mapToSource(index1))
-                res_ref = res_ref_item.text()
-                res_type = resource_types[res_type_item.text().lower()]
-
-                path = self.ui.modules_combo.currentData()
-                if ".rim" in path:
-                    data = RIM.fetch_resource(path, res_ref, res_type)
-                else:
-                    data = ERF.fetch_resource(path, res_ref, res_type)
-        if self.ui.tree_tabs.currentIndex() == 2:  # OVERRIDE
-            if len(self.ui.override_tree.selectedIndexes()) > 0:
-                index0 = self.ui.override_tree.selectedIndexes()[0]
-                index1 = self.ui.override_tree.selectedIndexes()[1]
-                res_ref_item = self.override_model.itemFromIndex(self.override_proxy.mapToSource(index0))
-                res_type_item = self.override_model.itemFromIndex(self.override_proxy.mapToSource(index1))
-                res_ref = res_ref_item.text()
-                res_type = resource_types[res_type_item.text().lower()]
-
-                file = open(self.active_installation.override_path + "/" + res_ref + "." + res_type.extension, "rb")
-                data = file.read()
-                file.close()
-
+        file = open(path, 'wb')
+        file.write(data)
+        file.close()
