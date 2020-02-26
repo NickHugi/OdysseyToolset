@@ -70,7 +70,10 @@ class Ui_MainWindow(object):
         self.modules_tree.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.modules_tree.setAlternatingRowColors(True)
         self.modules_tree.setObjectName("modules_tree")
-        self.gridLayout_4.addWidget(self.modules_tree, 0, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.modules_tree, 1, 0, 1, 1)
+        self.modules_combo = QtWidgets.QComboBox(self.tab_2)
+        self.modules_combo.setObjectName("modules_combo")
+        self.gridLayout_4.addWidget(self.modules_combo, 0, 0, 1, 1)
         self.tabWidget.addTab(self.tab_2, "")
         self.tab_3 = QtWidgets.QWidget()
         self.tab_3.setObjectName("tab_3")
@@ -189,7 +192,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuTools.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
