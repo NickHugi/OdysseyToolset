@@ -21,7 +21,13 @@ class Installation:
     def get_module_list(self):
         modules = {}
         for file in os.listdir(self.modules_path):
-            file_name = file[:file.index('.')]
             file_path = self.modules_path + "/" + file
             modules[file] = file_path
         return modules
+
+    def get_override_list(self):
+        override = {}
+        for file in os.listdir(self.override_path):
+            file_path = self.modules_path + "/" + file
+            override[file] = file_path
+        return override

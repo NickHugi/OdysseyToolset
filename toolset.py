@@ -93,8 +93,10 @@ class Toolset(QMainWindow):
         self.ui.modules_combo.clear()
         for name, path in self.active_installation.get_module_list().items():
             item = QStandardItem(name)
-            # item.path = path
             self.ui.modules_combo.addItem(name, path)
+
+        for name, path in self.active_installation.get_override_list().items():
+            self.build_tree_add_resource(self.override_tree_model, name, resource_types[name[name.index(".")+1:]])
 
     def build_tree_add_node(self, parent, name, type=""):
         items = [QStandardItem(str(name)), QStandardItem(str(type.upper()))]
