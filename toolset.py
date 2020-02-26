@@ -27,12 +27,12 @@ class Toolset(QMainWindow):
 
         self.core_tree_model = QStandardItemModel()
         self.core_tree_proxy = QSortFilterProxyModel(self)
-        self.modules_tree_model = QStandardItemModel()
-        self.modules_tree_proxy = QSortFilterProxyModel(self)
+        self.modules_model = QStandardItemModel()
+        self.modules_proxy = QSortFilterProxyModel(self)
         self.override_model = QStandardItemModel()
         self.override_proxy = QSortFilterProxyModel(self)
         self.init_tree_model(self.ui.core_tree, self.core_tree_model, self.core_tree_proxy)
-        self.init_tree_model(self.ui.modules_tree, self.modules_tree_model, self.modules_tree_proxy)
+        self.init_tree_model(self.ui.modules_tree, self.modules_model, self.modules_proxy)
         self.init_tree_model(self.ui.override_tree, self.override_model, self.override_proxy)
 
         self.refresh_installation_list()
@@ -79,10 +79,10 @@ class Toolset(QMainWindow):
     def clear_trees(self):
         self.ui.filter_edit.setText("")
         self.core_tree_proxy.setFilterFixedString("")
-        self.modules_tree_proxy.setFilterFixedString("")
+        self.modules_proxy.setFilterFixedString("")
         self.override_proxy.setFilterFixedString("")
         self.core_tree_model.removeRows(0, self.core_tree_model.rowCount())
-        self.modules_tree_model.removeRows(0, self.modules_tree_model.rowCount())
+        self.modules_model.removeRows(0, self.modules_model.rowCount())
         self.override_model.removeRows(0, self.override_model.rowCount())
 
     def build_trees(self):
@@ -136,7 +136,7 @@ class Toolset(QMainWindow):
             self.load_installation(installation_name)
 
     def modules_combo_changed(self, index):
-        self.modules_tree_model.removeRows(0, self.modules_tree_model.rowCount())
+        self.modules_model.removeRows(0, self.modules_model.rowCount())
         path: str = self.ui.modules_combo.itemData(index)
 
         if ".rim" in path:
@@ -144,9 +144,9 @@ class Toolset(QMainWindow):
         else:
             resource_list = ERF.get_resource_list(path)
 
-        self.modules_tree_model.removeRows(0, self.modules_tree_model.rowCount())
+        self.modules_model.removeRows(0, self.modules_model.rowCount())
         for entry in resource_list:
-            self.build_tree_add_resource(self.modules_tree_model, entry["res_ref"], entry["res_type"])
+            self.build_tree_add_resource(self.modules_model, entry["res_ref"], entry["res_type"])
 
     def open_button_clicked(self):
         data = None
@@ -154,7 +154,19 @@ class Toolset(QMainWindow):
         if self.ui.tree_tabs.currentIndex() == 0:  # CORE
             pass
         if self.ui.tree_tabs.currentIndex() == 1:  # MODULES
-            pass
+            if len(self.ui.modules_tree.selectedIndexes()) > 0:
+                index0 = self.ui.modules_tree.selectedIndexes()[0]
+                index1 = self.ui.modules_tree.selectedIndexes()[1]
+                res_ref_item = self.modules_model.itemFromIndex(self.modules_proxy.mapToSource(index0))
+                res_type_item = self.modules_model.itemFromIndex(self.modules_proxy.mapToSource(index1))
+                res_ref = res_ref_item.text()
+                res_type = resource_types[res_type_item.text().lower()]
+
+                path = self.ui.modules_combo.currentData()
+                if ".rim" in path:
+                    data = RIM.fetch_resource(path, res_ref, res_type)
+                else:
+                    data = ERF.fetch_resource(path, res_ref, res_type)
         if self.ui.tree_tabs.currentIndex() == 2:  # OVERRIDE
             if len(self.ui.override_tree.selectedIndexes()) > 0:
                 index0 = self.ui.override_tree.selectedIndexes()[0]
@@ -168,4 +180,3 @@ class Toolset(QMainWindow):
                 data = file.read()
                 file.close()
 
-            
