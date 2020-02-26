@@ -88,7 +88,7 @@ class Toolset(QMainWindow):
     def build_trees(self):
         self.clear_trees()
         for entry in self.active_installation.chitin.keys.values():
-            res_type = resource_types[entry.res_type]
+            res_type = entry.res_type
             node = self.build_tree_add_resource(self.core_tree_model, entry.res_ref, res_type)
 
         self.ui.modules_combo.clear()
