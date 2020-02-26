@@ -29,11 +29,11 @@ class Toolset(QMainWindow):
         self.core_tree_proxy = QSortFilterProxyModel(self)
         self.modules_tree_model = QStandardItemModel()
         self.modules_tree_proxy = QSortFilterProxyModel(self)
-        self.override_tree_model = QStandardItemModel()
-        self.override_tree_proxy = QSortFilterProxyModel(self)
+        self.override_model = QStandardItemModel()
+        self.override_proxy = QSortFilterProxyModel(self)
         self.init_tree_model(self.ui.core_tree, self.core_tree_model, self.core_tree_proxy)
         self.init_tree_model(self.ui.modules_tree, self.modules_tree_model, self.modules_tree_proxy)
-        self.init_tree_model(self.ui.override_tree, self.override_tree_model, self.override_tree_proxy)
+        self.init_tree_model(self.ui.override_tree, self.override_model, self.override_proxy)
 
         self.refresh_installation_list()
 
@@ -48,6 +48,7 @@ class Toolset(QMainWindow):
     def init_ui_events(self):
         self.ui.installation_combo.currentIndexChanged.connect(self.installation_combo_changed)
         self.ui.modules_combo.currentIndexChanged.connect(self.modules_combo_changed)
+        self.ui.button_open.clicked.connect(self.open_button_clicked)
 
     def refresh_installation_list(self):
         self.ui.installation_combo.clear()
@@ -79,16 +80,16 @@ class Toolset(QMainWindow):
         self.ui.filter_edit.setText("")
         self.core_tree_proxy.setFilterFixedString("")
         self.modules_tree_proxy.setFilterFixedString("")
-        self.override_tree_proxy.setFilterFixedString("")
+        self.override_proxy.setFilterFixedString("")
         self.core_tree_model.removeRows(0, self.core_tree_model.rowCount())
         self.modules_tree_model.removeRows(0, self.modules_tree_model.rowCount())
-        self.override_tree_model.removeRows(0, self.override_tree_model.rowCount())
+        self.override_model.removeRows(0, self.override_model.rowCount())
 
     def build_trees(self):
         self.clear_trees()
         for entry in self.active_installation.chitin.keys.values():
             res_type = resource_types[entry.res_type]
-            self.build_tree_add_resource(self.core_tree_model, entry.res_ref, res_type)
+            node = self.build_tree_add_resource(self.core_tree_model, entry.res_ref, res_type)
 
         self.ui.modules_combo.clear()
         for name, path in self.active_installation.get_module_list().items():
@@ -96,7 +97,8 @@ class Toolset(QMainWindow):
             self.ui.modules_combo.addItem(name, path)
 
         for name, path in self.active_installation.get_override_list().items():
-            self.build_tree_add_resource(self.override_tree_model, name, resource_types[name[name.index(".")+1:]])
+            res_ref = name[:name.index('.')]
+            self.build_tree_add_resource(self.override_model, res_ref, resource_types[name[name.index(".") + 1:]])
 
     def build_tree_add_node(self, parent, name, type=""):
         items = [QStandardItem(str(name)), QStandardItem(str(type.upper()))]
@@ -146,3 +148,24 @@ class Toolset(QMainWindow):
         for entry in resource_list:
             self.build_tree_add_resource(self.modules_tree_model, entry["res_ref"], entry["res_type"])
 
+    def open_button_clicked(self):
+        data = None
+
+        if self.ui.tree_tabs.currentIndex() == 0:  # CORE
+            pass
+        if self.ui.tree_tabs.currentIndex() == 1:  # MODULES
+            pass
+        if self.ui.tree_tabs.currentIndex() == 2:  # OVERRIDE
+            if len(self.ui.override_tree.selectedIndexes()) > 0:
+                index0 = self.ui.override_tree.selectedIndexes()[0]
+                index1 = self.ui.override_tree.selectedIndexes()[1]
+                res_ref_item = self.override_model.itemFromIndex(self.override_proxy.mapToSource(index0))
+                res_type_item = self.override_model.itemFromIndex(self.override_proxy.mapToSource(index1))
+                res_ref = res_ref_item.text()
+                res_type = resource_types[res_type_item.text().lower()]
+
+                file = open(self.active_installation.override_path + "/" + res_ref + "." + res_type.extension, "rb")
+                data = file.read()
+                file.close()
+
+            
