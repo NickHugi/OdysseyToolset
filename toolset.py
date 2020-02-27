@@ -1,10 +1,11 @@
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSettings, QSortFilterProxyModel
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap, QImage
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from pykotor.formats.erf import ERF
 
 from pykotor.formats.rim import RIM
+from pykotor.formats.tpc import TPC
 
 from pykotor.globals import resource_types
 
@@ -19,6 +20,7 @@ from widgets.item_editor import ItemEditor
 from widgets.merchant_editor import MerchantEditor
 from widgets.placeable_editor import PlaceableEditor
 from widgets.sound_editor import SoundEditor
+from widgets.texture_viewer import TextureViewer
 from widgets.tlk_editor import TLKEditor
 from widgets.trigger_editor import TriggerEditor
 from widgets.twoda_editor import TwoDAEditor
@@ -123,12 +125,15 @@ class Toolset(QMainWindow):
         for entry in self.active_installation.chitin.keys.values():
             res_type = entry.res_type
             node = self.build_tree_add_resource(self.core_model, entry.res_ref, res_type)
+            node.setData("chitin.key")
 
         for entry in ERF.fetch_resource_list(self.active_installation.textures_path + "/swpc_tex_tpa.erf"):
-            self.build_tree_add_resource(self.core_model, entry["res_ref"], entry["res_type"])
+            node = self.build_tree_add_resource(self.core_model, entry["res_ref"], entry["res_type"])
+            node.setData(self.active_installation.textures_path + "/swpc_tex_tpa.erf")
 
         for entry in ERF.fetch_resource_list(self.active_installation.textures_path + "/swpc_tex_gui.erf"):
-            self.build_tree_add_resource(self.core_model, entry["res_ref"], entry["res_type"])
+            node = self.build_tree_add_resource(self.core_model, entry["res_ref"], entry["res_type"])
+            node.setData(self.active_installation.textures_path + "/swpc_tex_tpa.erf")
 
         self.ui.modules_combo.clear()
         for name, path in self.active_installation.get_module_list().items():
@@ -179,9 +184,18 @@ class Toolset(QMainWindow):
             res_ref = res_ref_item.text()
             res_type = resource_types[res_type_item.text().lower()]
 
-            data.append({"res_data": self.active_installation.chitin.fetch_resource(res_ref, res_type),
+            if res_ref_item.data() == "chitin.key":
+                res_data = self.active_installation.chitin.fetch_resource(res_ref, res_type)
+            elif ".erf" in res_ref_item.data():
+                res_data = ERF.fetch_resource(res_ref_item.data(), res_ref, res_type)
+            else:
+                file = open(res_ref_item.data(), 'rb')
+                res_data = file.read()
+                file.close()
+            data.append({"res_data": res_data,
                          "res_type": res_type,
                          "res_ref": res_ref})
+
         if self.ui.tree_tabs.currentIndex() == 1:  # MODULES
             if len(self.ui.modules_tree.selectedIndexes()) > 0:
                 index0 = self.ui.modules_tree.selectedIndexes()[0]
@@ -246,6 +260,17 @@ class Toolset(QMainWindow):
 
     def open_button_clicked(self):
         resource = self.get_selected_data()[0]
+
+        widget = None
+        res_ref = resource["res_ref"]
+        res_type = resource["res_type"]
+        res_data = resource["res_data"]
+
+        if res_type == resource_types["tpc"]:
+            widget = TextureViewer.open_resource(self, res_ref, res_type, res_data)
+
+        if widget is not None:
+            self.ui.file_tabs.addTab(widget, res_ref + res_type.extension)
 
     def extract_button_clicked(self):
         data = self.get_selected_data()[0]["res_data"]
