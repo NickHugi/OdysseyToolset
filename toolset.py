@@ -34,6 +34,7 @@ class Toolset(QMainWindow):
 
         self.ui.console.hide()
         self.ui.tree_tabs.setEnabled(False)
+        self.ui.filter_edit.setEnabled(False)
 
         self.subwindows = []
 
@@ -131,6 +132,7 @@ class Toolset(QMainWindow):
             self.build_tree_add_resource(self.override_model, res_ref, resource_types[name[name.index(".") + 1:]])
 
         self.ui.tree_tabs.setEnabled(True)
+        self.ui.filter_edit.setEnabled(True)
 
     def build_tree_add_node(self, parent, name, type=""):
         items = [QStandardItem(str(name)), QStandardItem(str(type.upper()))]
@@ -203,6 +205,7 @@ class Toolset(QMainWindow):
     def installation_combo_changed(self, index):
         self.clear_trees()
         self.ui.tree_tabs.setEnabled(False)
+        self.ui.filter_edit.setEnabled(False)
         self.ui.modules_combo.clear()
         self.active_installation = None
 

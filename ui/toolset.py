@@ -200,7 +200,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.installation_combo.setItemText(0, _translate("MainWindow", "[None]"))
-        self.filter_edit.setPlaceholderText(_translate("MainWindow", "filter"))
+        self.filter_edit.setPlaceholderText(_translate("MainWindow", "filter..."))
         self.tree_tabs.setTabText(self.tree_tabs.indexOf(self.tab), _translate("MainWindow", "Core"))
         self.tree_tabs.setTabText(self.tree_tabs.indexOf(self.tab_2), _translate("MainWindow", "Modules"))
         self.tree_tabs.setTabText(self.tree_tabs.indexOf(self.tab_3), _translate("MainWindow", "Override"))
