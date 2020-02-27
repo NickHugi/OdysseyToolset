@@ -3,14 +3,18 @@ import time
 import numpy
 import pyrr
 from OpenGL.GL import shaders, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, glEnable, GL_DEPTH_TEST, glClear, \
-    GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, glUseProgram, glGetUniformLocation, glUniformMatrix4fv
+    GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, glUseProgram, glGetUniformLocation, glUniformMatrix4fv, glGenVertexArrays, \
+    glBindVertexArray, glGenBuffers, GL_ELEMENT_ARRAY_BUFFER, glBindBuffer, glBufferData, GL_ARRAY_BUFFER, \
+    GL_STATIC_DRAW, glEnableVertexAttribArray, glGetAttribLocation, glVertexAttribPointer, glDrawElements, GL_TRIANGLES, \
+    GL_TEXTURE_2D, glBindTexture, GL_UNSIGNED_SHORT, GL_FLOAT, GL_TRUE, GL_FALSE, ctypes, glPixelStorei, glGenTextures, \
+    GL_UNPACK_ALIGNMENT, glTexParameterf, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_REPEAT, GL_TEXTURE_MAG_FILTER, \
+    GL_LINEAR, GL_TEXTURE_MIN_FILTER, GL_RGBA8, GL_BGRA, glTexImage2D, GL_UNSIGNED_INT_8_8_8_8
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget, QOpenGLWidget
 import numpy as np
 
-
-VERTEX_SHADER =\
-"""
+VERTEX_SHADER = \
+    """
 #version 330 core
 
 uniform mat4 projectionMatrix;
@@ -30,8 +34,8 @@ void main(void) {
 }
 """
 
-FRAGMENT_SHADER =\
-"""
+FRAGMENT_SHADER = \
+    """
 #version 330 core
 
 uniform sampler2D texture_diffuse;
@@ -65,9 +69,15 @@ class ModelRenderer(QOpenGLWidget):
         self.last_update = time.time()
         self.delta_time = 0
 
+        self.camera_position = pyrr.vector3.create(0, 0, 0, np.float32)
+        self.camera_rotation = pyrr.euler.create(0, 0, 0, np.float32)
+
     def update(self):
         self.delta_time = time.time() - self.last_update
         self.last_update = time.time()
+
+        self.camera_position[1] -= 5 * self.delta_time
+        print(self.delta_time)
 
         self.repaint()
 
@@ -88,21 +98,46 @@ class ModelRenderer(QOpenGLWidget):
                                             [0, 0, 1, 0],
                                             [0, 1, 0, 0],
                                             [0, 0, 0, 1]], dtype=np.float32)
-        self.projection_matrix = self.axis_correction @ pyrr.matrix44.create_perspective_projection(80, 16 / 9, 0.1, 1000)
+        self.projection_matrix = self.axis_correction @ pyrr.matrix44.create_perspective_projection(80, 16 / 9, 0.1,
+                                                                                                    1000)
+
+        texture_id = glGenTextures(1)
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        glBindTexture(GL_TEXTURE_2D, texture_id)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, [0xFF00FFFF])
+        self.textures["NULL"] = texture_id
 
         QtCore.QTimer.singleShot(33, self.update)
 
     def resizeGL(self, width, height):
         aspect = width / height
-        self.projection_matrix = self.axis_correction @ pyrr.matrix44.create_perspective_projection(80, aspect, 0.1, 1000)
+        self.projection_matrix = self.axis_correction @ pyrr.matrix44.create_perspective_projection(80, aspect, 0.1,
+                                                                                                    1000)
         self.repaint()
 
     def paintGL(self):
-        pass
+        for model_name, model in self.model_buffer.items():
+            for texture_name in model.textures:
+                if texture_name not in self.textures:
+                    texture_id = glGenTextures(1)
+                    glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+                    glBindTexture(GL_TEXTURE_2D, texture_id)
+                    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+                    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+                    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+                    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, [0xEEFFFFEE])
+            self.models[model_name] = self.load_node_data(model.root_node)
+            self.build_node(self.models[model_name], model.root_node)
+        self.model_buffer.clear()
+
         global shader
 
         glEnable(GL_DEPTH_TEST)
-        # glEnable(GL_CULL_FACE)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         glUseProgram(shader)
@@ -117,4 +152,105 @@ class ModelRenderer(QOpenGLWidget):
         viewMatrixLocation = glGetUniformLocation(shader, "viewMatrix")
         glUniformMatrix4fv(viewMatrixLocation, 1, False, view_matrix)
 
-        
+        for object in self.objects:
+            if object.model_name in self.models:
+                transform = pyrr.matrix44.create_from_translation(object.position).T
+                self.models[object.model_name].render(transform)
+
+    def load_node_data(self, model_node):
+        vertex_data = []
+        indices_data = []
+        texture = ""
+
+        if model_node.trimesh is not None and model_node.trimesh.render is True:
+            texture = model_node.trimesh.texture
+            for i in range(len(model_node.trimesh.vertices)):
+                vertex_data.append(model_node.trimesh.vertices[i].x)
+                vertex_data.append(model_node.trimesh.vertices[i].y)
+                vertex_data.append(model_node.trimesh.vertices[i].z)
+                if len(model_node.trimesh.texture_uvs) != 0:
+                    vertex_data.append(model_node.trimesh.uvs[i].u)
+                    vertex_data.append(1.0 - model_node.trimesh.uvs[i].v)
+                else:
+                    vertex_data.extend([0.0, 0.0])
+            for i in range(len(model_node.trimesh.faces)):
+                indices_data.append(model_node.trimesh.faces[i][0])
+                indices_data.append(model_node.trimesh.faces[i][1])
+                indices_data.append(model_node.trimesh.faces[i][2])
+
+        vertex_data = numpy.array(vertex_data, dtype=np.float32)
+        indices_data = numpy.array(indices_data, dtype=np.uint16)
+
+        return GLNode(self, pyrr.vector3.create(),
+                      pyrr.quaternion.create(),
+                      vertex_data, indices_data, texture, model_node.name)
+
+    def build_node(self, gl_node, model_node):
+        for model_child in model_node.children:
+            gl_child = self.load_node_data(model_child)
+            gl_node.children.append(gl_child)
+            self.build_node(gl_child, model_child)
+
+
+class GLNode:
+    def __init__(self, renderer, position, rotation, vertex_data, indices_data, texture_name, name):
+        self.renderer = renderer
+        self.position = pyrr.matrix44.create_from_translation(position).T
+        self.rotation = pyrr.matrix44.create_from_quaternion(rotation)
+        self.vertex_data = vertex_data
+        self.indices_data = indices_data
+        self.texture_name = texture_name
+        self.name = name
+        self.children = []
+
+        self.element_count = len(indices_data)
+
+        self.vao_id = glGenVertexArrays(1)
+        glBindVertexArray(self.vao_id)
+
+        self.ebo_id = glGenBuffers(1)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.ebo_id)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_data, GL_STATIC_DRAW)
+
+        self.vbo_id = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.vbo_id)
+        glBufferData(GL_ARRAY_BUFFER, vertex_data, GL_STATIC_DRAW)
+
+        glEnableVertexAttribArray(0)
+        glEnableVertexAttribArray(1)
+        positionAttrib = glGetAttribLocation(shader, 'in_Position')
+        coordsAttrib = glGetAttribLocation(shader, 'in_TextureCoord')
+        glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, 20, None)
+        glVertexAttribPointer(coordsAttrib, 2, GL_FLOAT, GL_TRUE, 20, ctypes.c_void_p(12))
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        glBindVertexArray(0)
+
+    def render(self, parent_transform):
+        transform = parent_transform @ self.position @ self.rotation
+
+        texture_id = self.renderer.textures["NULL"]
+        if self.texture_name in self.renderer.textures:
+            texture_id = self.renderer.textures[self.texture_name]
+
+        modelMatrixLocation = glGetUniformLocation(shader, "modelMatrix")
+        glUniformMatrix4fv(modelMatrixLocation, 1, False, transform.T)
+
+        glBindTexture(GL_TEXTURE_2D, texture_id)
+
+        glBindVertexArray(self.vao_id)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.ebo_id)
+        glDrawElements(GL_TRIANGLES, self.element_count, GL_UNSIGNED_SHORT, None)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)
+        glBindVertexArray(0)
+
+        for child in self.children:
+            child.render(transform)
+
+
+class Object:
+    def __init__(self, model_name, position=pyrr.vector3.create(), rotation=pyrr.quaternion.create()):
+        self.model_name = model_name
+        self.position = position
+        self.rotation = rotation
