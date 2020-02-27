@@ -31,7 +31,7 @@ class TextureViewer(QWidget):
                     qimage.setPixel(x, y, pixels[index])
 
             widget.ui.texture_label.setPixmap(QPixmap.fromImage(qimage))
-            widget.ui.txi_edit.setPlainText(txi)
+            widget.ui.txi_edit.setPlainText(tpc.txi)
         else:
             image = Image.open(io.BytesIO(res_data))
             image = image.convert('RGBA')
