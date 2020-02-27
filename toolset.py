@@ -183,19 +183,22 @@ class Toolset(QMainWindow):
             res_type_item = self.core_model.itemFromIndex(self.core_proxy.mapToSource(index1))
             res_ref = res_ref_item.text()
             res_type = resource_types[res_type_item.text().lower()]
+            file_path = ""
 
             if res_ref_item.data() == "chitin.key":
                 res_data = self.active_installation.chitin.fetch_resource(res_ref, res_type)
             elif ".erf" in res_ref_item.data():
                 res_data = ERF.fetch_resource(res_ref_item.data(), res_ref, res_type)
+                file_path = res_ref_item.data()
             else:
                 file = open(res_ref_item.data(), 'rb')
                 res_data = file.read()
                 file.close()
+                file_path = res_ref_item.data()
             data.append({"res_data": res_data,
                          "res_type": res_type,
-                         "res_ref": res_ref})
-
+                         "res_ref": res_ref,
+                         "file_path": file_path})
         if self.ui.tree_tabs.currentIndex() == 1:  # MODULES
             if len(self.ui.modules_tree.selectedIndexes()) > 0:
                 index0 = self.ui.modules_tree.selectedIndexes()[0]
@@ -209,11 +212,13 @@ class Toolset(QMainWindow):
                 if ".rim" in path:
                     data.append({"res_data": RIM.fetch_resource(path, res_ref, res_type),
                                  "res_type": res_type,
-                                 "res_ref": res_ref})
+                                 "res_ref": res_ref,
+                                 "file_path": path})
                 else:
                     data.append({"res_data": ERF.fetch_resource(path, res_ref, res_type),
                                  "res_type": res_type,
-                                 "res_ref": res_ref})
+                                 "res_ref": res_ref,
+                                 "file_path": path})
         if self.ui.tree_tabs.currentIndex() == 2:  # OVERRIDE
             if len(self.ui.override_tree.selectedIndexes()) > 0:
                 index0 = self.ui.override_tree.selectedIndexes()[0]
@@ -222,12 +227,23 @@ class Toolset(QMainWindow):
                 res_type_item = self.override_model.itemFromIndex(self.override_proxy.mapToSource(index1))
                 res_ref = res_ref_item.text()
                 res_type = resource_types[res_type_item.text().lower()]
+                file_path = self.active_installation.override_path + "/" + res_ref + "." + res_type.extension
 
-                file = open(self.active_installation.override_path + "/" + res_ref + "." + res_type.extension, "rb")
-                data.append({"res_data": file.read(), "res_type": res_type, "res_ref": res_ref})
+                file = open(file_path, "rb")
+                data.append({"res_data": file.read(), "res_type": res_type, "res_ref": res_ref, "file_path": file_path})
                 file.close()
 
         return data
+
+    def open_resource(self, res_ref, res_type, res_data, file_path=""):
+        widget = None
+
+        if res_type == resource_types["tpc"] or res_type == resource_types["tga"] or res_type == resource_types["bmp"]\
+                or res_type == resource_types["png"] or res_type == resource_types["jpg"]:
+            widget = TextureViewer.open_resource(self, res_ref, res_type, res_data)
+
+        if widget is not None:
+            self.ui.file_tabs.addTab(widget, res_ref + res_type.extension)
 
     # Events
     def installation_combo_changed(self, index):
@@ -260,17 +276,7 @@ class Toolset(QMainWindow):
 
     def open_button_clicked(self):
         resource = self.get_selected_data()[0]
-
-        widget = None
-        res_ref = resource["res_ref"]
-        res_type = resource["res_type"]
-        res_data = resource["res_data"]
-
-        if res_type == resource_types["tpc"]:
-            widget = TextureViewer.open_resource(self, res_ref, res_type, res_data)
-
-        if widget is not None:
-            self.ui.file_tabs.addTab(widget, res_ref + res_type.extension)
+        self.open_resource(resource["res_ref"], resource["res_type"], resource["res_data"])
 
     def extract_button_clicked(self):
         data = self.get_selected_data()[0]["res_data"]
