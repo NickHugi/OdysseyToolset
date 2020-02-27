@@ -1,3 +1,5 @@
+import os
+
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSettings, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap, QImage
@@ -83,6 +85,7 @@ class Toolset(QMainWindow):
         self.ui.action_new_trigger.triggered.connect(self.new_trigger_action_triggered)
         self.ui.action_new_encounter.triggered.connect(self.new_encounter_action_triggered)
         self.ui.action_new_sound.triggered.connect(self.new_sound_action_triggered)
+        self.ui.action_open.triggered.connect(self.open_action_triggered)
 
     def refresh_installation_list(self):
         self.ui.installation_combo.clear()
@@ -341,3 +344,14 @@ class Toolset(QMainWindow):
         widget = SoundEditor(self)
         self.ui.file_tabs.addTab(widget, "new.uts")
 
+    def open_action_triggered(self):
+        file_path = QFileDialog.getOpenFileName(self, "Open File")[0]
+
+        res_ref = os.path.splitext(os.path.basename(file_path))[0]
+        res_type = resource_types[os.path.splitext(os.path.basename(file_path))[1].replace(".", "")]
+
+        file = open(file_path, 'rb')
+        res_data = file.read()
+        file.close()
+
+        self.open_resource(res_ref, res_type, res_data, file_path)
