@@ -119,9 +119,16 @@ class Toolset(QMainWindow):
 
     def build_trees(self):
         self.clear_trees()
+
         for entry in self.active_installation.chitin.keys.values():
             res_type = entry.res_type
             node = self.build_tree_add_resource(self.core_model, entry.res_ref, res_type)
+
+        for entry in ERF.fetch_resource_list(self.active_installation.textures_path + "/swpc_tex_tpa.erf"):
+            self.build_tree_add_resource(self.core_model, entry["res_ref"], entry["res_type"])
+
+        for entry in ERF.fetch_resource_list(self.active_installation.textures_path + "/swpc_tex_gui.erf"):
+            self.build_tree_add_resource(self.core_model, entry["res_ref"], entry["res_type"])
 
         self.ui.modules_combo.clear()
         for name, path in self.active_installation.get_module_list().items():
@@ -231,7 +238,7 @@ class Toolset(QMainWindow):
         if ".rim" in path:
             resource_list = RIM.fetch_resource_list(path)
         else:
-            resource_list = ERF.get_resource_list(path)
+            resource_list = ERF.fetch_resource_list(path)
 
         self.modules_model.removeRows(0, self.modules_model.rowCount())
         for entry in resource_list:
