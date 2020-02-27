@@ -157,6 +157,10 @@ class Ui_MainWindow(object):
         self.actionEncounter.setObjectName("actionEncounter")
         self.actionDoor = QtWidgets.QAction(MainWindow)
         self.actionDoor.setObjectName("actionDoor")
+        self.action_tools_2da = QtWidgets.QAction(MainWindow)
+        self.action_tools_2da.setObjectName("action_tools_2da")
+        self.action_tools_erf = QtWidgets.QAction(MainWindow)
+        self.action_tools_erf.setObjectName("action_tools_erf")
         self.menuNew.addAction(self.action_new_module)
         self.menuNew.addAction(self.action_new_archve)
         self.menuNew.addSeparator()
@@ -171,7 +175,6 @@ class Ui_MainWindow(object):
         self.menuNew.addAction(self.actionItem)
         self.menuNew.addSeparator()
         self.menuNew.addAction(self.action_new_gff)
-        self.menuNew.addAction(self.action_new_2da)
         self.menuFile.addAction(self.action_open)
         self.menuFile.addAction(self.menuNew.menuAction())
         self.menuFile.addSeparator()
@@ -182,11 +185,13 @@ class Ui_MainWindow(object):
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.action_settings)
         self.menuTools.addAction(self.action_tools_tlk)
+        self.menuTools.addAction(self.action_tools_2da)
+        self.menuTools.addAction(self.action_tools_erf)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tree_tabs.setCurrentIndex(1)
+        self.tree_tabs.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -223,6 +228,8 @@ class Ui_MainWindow(object):
         self.actionTrigger.setText(_translate("MainWindow", "Trigger"))
         self.actionEncounter.setText(_translate("MainWindow", "Encounter"))
         self.actionDoor.setText(_translate("MainWindow", "Door"))
+        self.action_tools_2da.setText(_translate("MainWindow", "2DA Editor"))
+        self.action_tools_erf.setText(_translate("MainWindow", "ERF Editor"))
 
 
 if __name__ == "__main__":

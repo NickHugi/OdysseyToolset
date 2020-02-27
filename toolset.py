@@ -9,6 +9,9 @@ from pykotor.globals import resource_types
 
 from installation import Installation
 from ui import toolset
+from widgets.erf_editor import ERFEditor
+from widgets.tlk_editor import TLKEditor
+from widgets.twoda_editor import TwoDAEditor
 
 
 class Toolset(QMainWindow):
@@ -20,6 +23,9 @@ class Toolset(QMainWindow):
         self.show()
 
         self.ui.console.hide()
+        self.ui.tree_tabs.setEnabled(False)
+
+        self.subwindows = []
 
         self.settings = QSettings("toolset")
         self.installations = {}
@@ -50,6 +56,9 @@ class Toolset(QMainWindow):
         self.ui.modules_combo.currentIndexChanged.connect(self.modules_combo_changed)
         self.ui.button_open.clicked.connect(self.open_button_clicked)
         self.ui.button_extract.clicked.connect(self.extract_button_clicked)
+        self.ui.action_tools_erf.triggered.connect(self.tools_erf_action_triggered)
+        self.ui.action_tools_tlk.triggered.connect(self.tools_tlk_action_triggered)
+        self.ui.action_tools_2da.triggered.connect(self.tools_2da_action_triggered)
 
     def refresh_installation_list(self):
         self.ui.installation_combo.clear()
@@ -100,6 +109,8 @@ class Toolset(QMainWindow):
         for name, path in self.active_installation.get_override_list().items():
             res_ref = name[:name.index('.')]
             self.build_tree_add_resource(self.override_model, res_ref, resource_types[name[name.index(".") + 1:]])
+
+        self.ui.tree_tabs.setEnabled(True)
 
     def build_tree_add_node(self, parent, name, type=""):
         items = [QStandardItem(str(name)), QStandardItem(str(type.upper()))]
@@ -171,6 +182,8 @@ class Toolset(QMainWindow):
     # Events
     def installation_combo_changed(self, index):
         self.clear_trees()
+        self.ui.tree_tabs.setEnabled(False)
+        self.ui.modules_combo.clear()
         self.active_installation = None
 
         if index > 0:
@@ -179,6 +192,10 @@ class Toolset(QMainWindow):
 
     def modules_combo_changed(self, index):
         self.modules_model.removeRows(0, self.modules_model.rowCount())
+
+        if index == -1:
+            return
+
         path: str = self.ui.modules_combo.itemData(index)
 
         if ".rim" in path:
@@ -200,3 +217,19 @@ class Toolset(QMainWindow):
         file = open(path, 'wb')
         file.write(data)
         file.close()
+
+    def tools_erf_action_triggered(self):
+        window = ERFEditor()
+        window.show()
+        self.subwindows.append(window)
+
+    def tools_tlk_action_triggered(self):
+        window = TLKEditor()
+        window.show()
+        self.subwindows.append(window)
+
+    def tools_2da_action_triggered(self):
+        window = TwoDAEditor()
+        window.show()
+        self.subwindows.append(window)
+
