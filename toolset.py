@@ -20,6 +20,7 @@ from widgets.encounter_editor import EncounterEditor
 from widgets.erf_editor import ERFEditor
 from widgets.item_editor import ItemEditor
 from widgets.merchant_editor import MerchantEditor
+from widgets.model_renderer import ModelRenderer
 from widgets.placeable_editor import PlaceableEditor
 from widgets.sound_editor import SoundEditor
 from widgets.texture_viewer import TextureViewer
@@ -244,6 +245,9 @@ class Toolset(QMainWindow):
         if res_type == resource_types["tpc"] or res_type == resource_types["tga"] or res_type == resource_types["bmp"]\
                 or res_type == resource_types["png"] or res_type == resource_types["jpg"]:
             widget = TextureViewer.open_resource(self, res_ref, res_type, res_data)
+
+        if res_type == resource_types["mdl"]:
+            widget = ModelRenderer(self)
 
         if widget is not None:
             self.ui.file_tabs.addTab(widget, res_ref + res_type.extension)

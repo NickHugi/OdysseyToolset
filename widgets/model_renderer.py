@@ -2,7 +2,8 @@ import time
 
 import numpy
 import pyrr
-from OpenGL.GL import shaders, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER
+from OpenGL.GL import shaders, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, glEnable, GL_DEPTH_TEST, glClear, \
+    GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, glUseProgram, glGetUniformLocation, glUniformMatrix4fv
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget, QOpenGLWidget
 import numpy as np
@@ -98,3 +99,22 @@ class ModelRenderer(QOpenGLWidget):
 
     def paintGL(self):
         pass
+        global shader
+
+        glEnable(GL_DEPTH_TEST)
+        # glEnable(GL_CULL_FACE)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        glUseProgram(shader)
+
+        rot = pyrr.matrix44.create_from_eulers(self.camera_rotation)
+        trans = pyrr.matrix44.create_from_translation(self.camera_position)
+        view_matrix = trans @ rot
+
+        projectionMatrixLocation = glGetUniformLocation(shader, "projectionMatrix")
+        glUniformMatrix4fv(projectionMatrixLocation, 1, False, self.projection_matrix)
+
+        viewMatrixLocation = glGetUniformLocation(shader, "viewMatrix")
+        glUniformMatrix4fv(viewMatrixLocation, 1, False, view_matrix)
+
+        
