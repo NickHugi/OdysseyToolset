@@ -1,3 +1,4 @@
+from PyQt5 import QtCore
 from PyQt5.QtCore import QSettings, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
@@ -171,7 +172,9 @@ class Toolset(QMainWindow):
             res_ref = res_ref_item.text()
             res_type = resource_types[res_type_item.text().lower()]
 
-            data.append(self.active_installation.chitin.fetch_resource(res_ref, res_type))
+            data.append({"res_data": self.active_installation.chitin.fetch_resource(res_ref, res_type),
+                         "res_type": res_type,
+                         "res_ref": res_ref})
         if self.ui.tree_tabs.currentIndex() == 1:  # MODULES
             if len(self.ui.modules_tree.selectedIndexes()) > 0:
                 index0 = self.ui.modules_tree.selectedIndexes()[0]
@@ -183,9 +186,13 @@ class Toolset(QMainWindow):
 
                 path = self.ui.modules_combo.currentData()
                 if ".rim" in path:
-                    data.append(RIM.fetch_resource(path, res_ref, res_type))
+                    data.append({"res_data": RIM.fetch_resource(path, res_ref, res_type),
+                                 "res_type": res_type,
+                                 "res_ref": res_ref})
                 else:
-                    data.append(ERF.fetch_resource(path, res_ref, res_type))
+                    data.append({"res_data": ERF.fetch_resource(path, res_ref, res_type),
+                                 "res_type": res_type,
+                                 "res_ref": res_ref})
         if self.ui.tree_tabs.currentIndex() == 2:  # OVERRIDE
             if len(self.ui.override_tree.selectedIndexes()) > 0:
                 index0 = self.ui.override_tree.selectedIndexes()[0]
@@ -196,7 +203,7 @@ class Toolset(QMainWindow):
                 res_type = resource_types[res_type_item.text().lower()]
 
                 file = open(self.active_installation.override_path + "/" + res_ref + "." + res_type.extension, "rb")
-                data.append(file.read())
+                data.append({"res_data": file.read(), "res_type": res_type, "res_ref": res_ref})
                 file.close()
 
         return data
@@ -231,10 +238,10 @@ class Toolset(QMainWindow):
             self.build_tree_add_resource(self.modules_model, entry["res_ref"], entry["res_type"])
 
     def open_button_clicked(self):
-        pass
+        resource = self.get_selected_data()[0]
 
     def extract_button_clicked(self):
-        data = self.get_selected_data()[0]
+        data = self.get_selected_data()[0]["res_data"]
         path = QFileDialog.getSaveFileName(self, "Extract file to")[0]
 
         file = open(path, 'wb')
