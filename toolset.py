@@ -9,9 +9,19 @@ from pykotor.globals import resource_types
 
 from installation import Installation
 from ui import toolset
+from widgets.creature_editor import CreatureEditor
+from widgets.dialog_editor import DialogEditor
+from widgets.door_editor import DoorEditor
+from widgets.encounter_editor import EncounterEditor
 from widgets.erf_editor import ERFEditor
+from widgets.item_editor import ItemEditor
+from widgets.merchant_editor import MerchantEditor
+from widgets.placeable_editor import PlaceableEditor
+from widgets.sound_editor import SoundEditor
 from widgets.tlk_editor import TLKEditor
+from widgets.trigger_editor import TriggerEditor
 from widgets.twoda_editor import TwoDAEditor
+from widgets.waypoint_editor import WaypointEditor
 
 
 class Toolset(QMainWindow):
@@ -59,6 +69,16 @@ class Toolset(QMainWindow):
         self.ui.action_tools_erf.triggered.connect(self.tools_erf_action_triggered)
         self.ui.action_tools_tlk.triggered.connect(self.tools_tlk_action_triggered)
         self.ui.action_tools_2da.triggered.connect(self.tools_2da_action_triggered)
+        self.ui.action_new_creature.triggered.connect(self.new_creature_action_triggered)
+        self.ui.action_new_placeable.triggered.connect(self.new_placeable_action_triggered)
+        self.ui.action_new_door.triggered.connect(self.new_door_action_triggered)
+        self.ui.action_new_item.triggered.connect(self.new_item_action_triggered)
+        self.ui.action_new_dialog.triggered.connect(self.new_dialog_action_triggered)
+        self.ui.action_new_merchant.triggered.connect(self.new_merchant_action_triggered)
+        self.ui.action_new_waypoint.triggered.connect(self.new_waypoint_action_triggered)
+        self.ui.action_new_trigger.triggered.connect(self.new_trigger_action_triggered)
+        self.ui.action_new_encounter.triggered.connect(self.new_encounter_action_triggered)
+        self.ui.action_new_sound.triggered.connect(self.new_sound_action_triggered)
 
     def refresh_installation_list(self):
         self.ui.installation_combo.clear()
@@ -232,4 +252,44 @@ class Toolset(QMainWindow):
         window = TwoDAEditor()
         window.show()
         self.subwindows.append(window)
+
+    def new_creature_action_triggered(self):
+        widget = CreatureEditor(self)
+        self.ui.file_tabs.addTab(widget, "new.utc")
+
+    def new_placeable_action_triggered(self):
+        widget = PlaceableEditor(self)
+        self.ui.file_tabs.addTab(widget, "new.utp")
+
+    def new_door_action_triggered(self):
+        widget = DoorEditor(self)
+        self.ui.file_tabs.addTab(widget, "new.utd")
+
+    def new_item_action_triggered(self):
+        widget = ItemEditor(self)
+        self.ui.file_tabs.addTab(widget, "new.uti")
+
+    def new_dialog_action_triggered(self):
+        widget = DialogEditor(self)
+        self.ui.file_tabs.addTab(widget, "new.dlg")
+
+    def new_merchant_action_triggered(self):
+        widget = MerchantEditor(self)
+        self.ui.file_tabs.addTab(widget, "new.utm")
+
+    def new_waypoint_action_triggered(self):
+        widget = WaypointEditor(self)
+        self.ui.file_tabs.addTab(widget, "new.utw")
+
+    def new_trigger_action_triggered(self):
+        widget = TriggerEditor(self)
+        self.ui.file_tabs.addTab(widget, "new.utt")
+
+    def new_encounter_action_triggered(self):
+        widget = EncounterEditor(self)
+        self.ui.file_tabs.addTab(widget, "new.ute")
+
+    def new_sound_action_triggered(self):
+        widget = SoundEditor(self)
+        self.ui.file_tabs.addTab(widget, "new.uts")
 
