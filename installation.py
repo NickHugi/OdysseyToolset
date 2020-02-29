@@ -48,7 +48,7 @@ class Installation:
             file.close()
             return data
 
-        if installation is not None:  # TODO and installation.chitin.has_resource(res_ref, res_type):
+        if installation is not None:
             data = installation.chitin.fetch_resource(res_ref, res_type)
             if data is not None:
                 return data
@@ -59,3 +59,11 @@ class Installation:
             file.close()
             return data
 
+    @staticmethod
+    def find_texture(res_ref, installation=None, priority_path=""):
+        if installation is not None:
+            data = ERF.fetch_resource(installation.textures_path + "/swpc_tex_tpa.erf", res_ref, "tpc")
+            texture = TPC.from_data(data)
+            return texture
+
+        return None
