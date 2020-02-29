@@ -8,10 +8,14 @@ from OpenGL.GL import shaders, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, glEnable, G
     GL_STATIC_DRAW, glEnableVertexAttribArray, glGetAttribLocation, glVertexAttribPointer, glDrawElements, GL_TRIANGLES, \
     GL_TEXTURE_2D, glBindTexture, GL_UNSIGNED_SHORT, GL_FLOAT, GL_TRUE, GL_FALSE, ctypes, glPixelStorei, glGenTextures, \
     GL_UNPACK_ALIGNMENT, glTexParameterf, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_REPEAT, GL_TEXTURE_MAG_FILTER, \
-    GL_LINEAR, GL_TEXTURE_MIN_FILTER, GL_RGBA8, GL_BGRA, glTexImage2D, GL_UNSIGNED_INT_8_8_8_8
+    GL_LINEAR, GL_TEXTURE_MIN_FILTER, GL_RGBA8, GL_BGRA, glTexImage2D, GL_UNSIGNED_INT_8_8_8_8, GL_UNSIGNED_BYTE, \
+    glCompressedTexImage2D, GL_UNSIGNED_INT_8_8_8_8_REV
+from OpenGL.raw.GL.EXT.texture_compression_s3tc import GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGB_S3TC_DXT1_EXT
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget, QOpenGLWidget
 import numpy as np
+
+from installation import Installation
 
 VERTEX_SHADER = \
     """
@@ -69,15 +73,12 @@ class ModelRenderer(QOpenGLWidget):
         self.last_update = time.time()
         self.delta_time = 0
 
-        self.camera_position = pyrr.vector3.create(0, 0, 0, np.float32)
+        self.camera_position = pyrr.vector3.create(0, -2, 0, np.float32)
         self.camera_rotation = pyrr.euler.create(0, 0, 0, np.float32)
 
     def update(self):
         self.delta_time = time.time() - self.last_update
         self.last_update = time.time()
-
-        self.camera_position[1] -= 5 * self.delta_time
-        print(self.delta_time)
 
         self.repaint()
 
@@ -123,6 +124,7 @@ class ModelRenderer(QOpenGLWidget):
         for model_name, model in self.model_buffer.items():
             for texture_name in model.textures:
                 if texture_name not in self.textures:
+                    tex = Installation.find_texture(texture_name, self.window().active_installation)
                     texture_id = glGenTextures(1)
                     glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
                     glBindTexture(GL_TEXTURE_2D, texture_id)
@@ -130,7 +132,8 @@ class ModelRenderer(QOpenGLWidget):
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8, [0xEEFFFFEE])
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex.width, tex.height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV , tex.get_rgba())
+                    self.textures[texture_name] = texture_id
             self.models[model_name] = self.load_node_data(model.root_node)
             self.build_node(self.models[model_name], model.root_node)
         self.model_buffer.clear()
@@ -162,15 +165,15 @@ class ModelRenderer(QOpenGLWidget):
         indices_data = []
         texture = ""
 
-        if model_node.trimesh is not None and model_node.trimesh.render is True:
+        if model_node.trimesh is not None and model_node.trimesh.render is True and model_node.walkmesh is not None:
             texture = model_node.trimesh.texture
             for i in range(len(model_node.trimesh.vertices)):
                 vertex_data.append(model_node.trimesh.vertices[i].x)
                 vertex_data.append(model_node.trimesh.vertices[i].y)
                 vertex_data.append(model_node.trimesh.vertices[i].z)
                 if len(model_node.trimesh.texture_uvs) != 0:
-                    vertex_data.append(model_node.trimesh.uvs[i].u)
-                    vertex_data.append(1.0 - model_node.trimesh.uvs[i].v)
+                    vertex_data.append(model_node.trimesh.texture_uvs[i].u)
+                    vertex_data.append(1.0 - model_node.trimesh.texture_uvs[i].v)
                 else:
                     vertex_data.extend([0.0, 0.0])
             for i in range(len(model_node.trimesh.faces)):
@@ -181,9 +184,12 @@ class ModelRenderer(QOpenGLWidget):
         vertex_data = numpy.array(vertex_data, dtype=np.float32)
         indices_data = numpy.array(indices_data, dtype=np.uint16)
 
-        return GLNode(self, pyrr.vector3.create(),
-                      pyrr.quaternion.create(),
-                      vertex_data, indices_data, texture, model_node.name)
+        position = pyrr.vector3.create()
+        rotation = pyrr.quaternion.create()
+        position = pyrr.vector3.create(model_node.local_position.x, model_node.local_position.y, model_node.local_position.z)
+        rotation = pyrr.quaternion.create(model_node.local_rotation.x, model_node.local_rotation.y, model_node.local_rotation.z, model_node.local_rotation.w)
+
+        return GLNode(self, position, rotation, vertex_data, indices_data, texture, model_node.name)
 
     def build_node(self, gl_node, model_node):
         for model_child in model_node.children:
