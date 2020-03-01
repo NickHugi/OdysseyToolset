@@ -55,7 +55,7 @@ class EncounterEditor(QWidget):
             self.ui.tree.topLevelItem(i).setForeground(0, QBrush(QtCore.Qt.gray))
 
         self.init_button(self.creatures_item, "...")
-        self.ui.tree.itemWidget(self.creatures_item, 1).triggered.connect(self.open_creatures_dialog)
+        self.ui.tree.itemWidget(self.creatures_item, 1).clicked.connect(self.open_creatures_dialog)
 
         self.init_line_edit(self.script_tag_item)
         self.init_line_edit(self.template_item)
