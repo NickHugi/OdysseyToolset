@@ -148,7 +148,8 @@ class Toolset(QMainWindow):
 
         for name, path in self.active_installation.get_override_list().items():
             res_ref = name[:name.index('.')]
-            self.build_tree_add_resource(self.override_model, res_ref, resource_types[name[name.index(".") + 1:]])
+            res_extension = name[name.index(".") + 1:].lower()
+            self.build_tree_add_resource(self.override_model, res_ref, resource_types[res_extension])
 
         self.ui.tree_tabs.setEnabled(True)
         self.ui.filter_edit.setEnabled(True)
