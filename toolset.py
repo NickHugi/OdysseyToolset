@@ -357,11 +357,12 @@ class Toolset(QMainWindow):
     def open_action_triggered(self):
         file_path = QFileDialog.getOpenFileName(self, "Open File")[0]
 
-        res_ref = os.path.splitext(os.path.basename(file_path))[0]
-        res_type = resource_types[os.path.splitext(os.path.basename(file_path))[1].replace(".", "")]
+        if file_path != "":
+            res_ref = os.path.splitext(os.path.basename(file_path))[0]
+            res_type = resource_types[os.path.splitext(os.path.basename(file_path))[1].replace(".", "")]
 
-        file = open(file_path, 'rb')
-        res_data = file.read()
-        file.close()
+            file = open(file_path, 'rb')
+            res_data = file.read()
+            file.close()
 
-        self.open_resource(res_ref, res_type, res_data, file_path)
+            self.open_resource(res_ref, res_type, res_data, file_path)
