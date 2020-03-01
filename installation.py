@@ -1,5 +1,7 @@
 import os
 
+from pykotor.formats.tlk import TLK
+
 from pykotor.globals import resource_types
 
 from pykotor.formats.erf import ERF
@@ -35,6 +37,12 @@ class Installation:
             file_path = self.modules_path + "/" + file
             override[file] = file_path
         return override
+
+    def get_tlk_entry_count(self):
+        return TLK.fetch_entry_count(self.root_path + "/dialog.tlk")
+
+    def get_tlk_entry_text(self, index):
+        return TLK.fetch_entry_text(self.root_path + "/dialog.tlk", index)
 
     @staticmethod
     def find_resource(res_ref, res_type, installation=None, priority_path=""):
