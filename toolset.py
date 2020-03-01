@@ -4,6 +4,8 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QSettings, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap, QImage
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from pykotor.formats.mdl import MDL
+
 from pykotor.formats.erf import ERF
 
 from pykotor.formats.rim import RIM
@@ -20,7 +22,7 @@ from widgets.encounter_editor import EncounterEditor
 from widgets.erf_editor import ERFEditor
 from widgets.item_editor import ItemEditor
 from widgets.merchant_editor import MerchantEditor
-from widgets.model_renderer import ModelRenderer
+from widgets.model_renderer import ModelRenderer, Object
 from widgets.placeable_editor import PlaceableEditor
 from widgets.sound_editor import SoundEditor
 from widgets.texture_viewer import TextureViewer
@@ -247,7 +249,11 @@ class Toolset(QMainWindow):
             widget = TextureViewer.open_resource(self, res_ref, res_type, res_data)
 
         if res_type == resource_types["mdl"]:
+            data_ext = Installation.find_resource(res_ref, "mdx", self.active_installation, os.path.dirname(file_path))
+            mdl = MDL.from_data(res_data, data_ext)
             widget = ModelRenderer(self)
+            widget.model_buffer[res_ref] = mdl
+            widget.objects.append(Object(res_ref))
 
         if widget is not None:
             self.ui.file_tabs.addTab(widget, res_ref + res_type.extension)
