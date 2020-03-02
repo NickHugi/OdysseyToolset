@@ -44,11 +44,12 @@ class Installation:
     def get_tlk_entry_text(self, index):
         return TLK.fetch_entry_text(self.root_path + "/dialog.tlk", index)
 
+    @staticmethod
     def get_faction_list(self, tsl=True):
         list = ["Friendly 1", "Hostile 2", "Friendly 2", "Neutral", "Insane", "Tuskan",
                 "GLB XOR", "Surrender 1", "Surrender 2", "Predator", "Prey", "Trap",
                 "Endar Spire", "Rancor", "Gizka 1", "Gizka 2", "Czerka",
-                "Zone Controller", "Sacrafice", "One On One", "Party Puppet"]
+                "Zone Controller", "Sacrifice", "One On One", "Party Puppet"]
 
         if not tsl:
             list = list[:-3]
