@@ -60,6 +60,9 @@ class Installation:
     def get_gender_list():
         return ["Male", "Female", "Both", "Other", "None"]
 
+    def get_race_list():
+        return ["Human", "Droid"]
+
     @staticmethod
     def find_resource(res_ref, res_type, installation=None, priority_path=""):
         if type(res_type) is str:
