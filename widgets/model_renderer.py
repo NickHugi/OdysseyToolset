@@ -165,7 +165,7 @@ class ModelRenderer(QOpenGLWidget):
         indices_data = []
         texture = ""
 
-        if model_node.trimesh is not None and model_node.trimesh.render is True and model_node.walkmesh is not None:
+        if model_node.trimesh is not None and model_node.trimesh.render is True and model_node.walkmesh is None:
             texture = model_node.trimesh.texture
             for i in range(len(model_node.trimesh.vertices)):
                 vertex_data.append(model_node.trimesh.vertices[i].x)
