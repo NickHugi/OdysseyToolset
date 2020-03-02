@@ -63,6 +63,12 @@ class Installation:
     def get_race_list():
         return ["Human", "Droid"]
 
+    def get_subrace_list(tsl=True):
+        list = ["None", "Wookie", "Beast", "Zabrak"]
+        if not tsl:
+            list = list[:-1]
+        return list
+
     @staticmethod
     def find_resource(res_ref, res_type, installation=None, priority_path=""):
         if type(res_type) is str:
