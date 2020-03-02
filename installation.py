@@ -51,6 +51,10 @@ class Installation:
         labels = data.get_column_data("label")
         return labels
 
+    @staticmethod
+    def get_bodybag_list():
+        return ["Default", "Backpack", "Equipment Pack", "Bagand Strap", "Metal Case", "Cloth Pile", "Pouch",
+                "Tuskan Rags", "Rancor Corpse", "Krayt Corpse"]
 
     @staticmethod
     def get_faction_list(tsl=True):
