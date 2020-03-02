@@ -72,10 +72,12 @@ class Installation:
         return list
 
     @staticmethod
-    def get_phenotype_list(self):
+    def get_phenotype_list():
         return ["Normal", "Skinny", "Large"]
 
-    
+    @staticmethod
+    def get_perception_list():
+        return ["Short", "Medium", "Long", "Default", "Player", "Monster"]
 
     @staticmethod
     def find_resource(res_ref, res_type, installation=None, priority_path=""):
