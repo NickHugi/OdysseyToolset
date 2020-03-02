@@ -85,6 +85,15 @@ class Installation:
                 "Huge", "Giant", "Wee Folk"]
 
     @staticmethod
+    def get_class_list(tsl=True):
+        list = ["Soldier", "Scout", "Scoundrel", "Jedi Guardian", "Jedi Consular", "Jedi Sentinel", "Combat Droid",
+                "Expert Droid", "Minion", "Tech Specialist", "[CUT] Bounty Hunter", "Jedi Weaponmaster", "Jedi Master",
+                "Jedi Watchman", "Sith Marauder", "Sith Lord", "Sith Assassin"]
+        if not tsl:
+            list = list [:-8]
+        return list
+
+    @staticmethod
     def find_resource(res_ref, res_type, installation=None, priority_path=""):
         if type(res_type) is str:
             res_type = resource_types[res_type]
