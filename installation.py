@@ -80,6 +80,11 @@ class Installation:
         return ["Short", "Medium", "Long", "Default", "Player", "Monster"]
 
     @staticmethod
+    def get_speed_list():
+        return ["PC Movement", "Immobile", "Very Slow", "Slow", "Normal", "Fast", "Very Fast", "Default", "DM Fast",
+                "Huge", "Giant", "Wee Folk"]
+
+    @staticmethod
     def find_resource(res_ref, res_type, installation=None, priority_path=""):
         if type(res_type) is str:
             res_type = resource_types[res_type]
