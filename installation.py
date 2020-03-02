@@ -59,6 +59,17 @@ class Installation:
         return labels
 
     @staticmethod
+    def get_trap_type_list(tsl=True):
+        list = ["Stun Minor", "Stun Average", "Stun Deadly", "Frag Minor", "Frag Average", "Frag Deadly",
+                "Plasma Minor", "Plasma Average", "Plasma Deadly", "Gas Minor", "Gas Average", "Gas Deadly",
+                "Rock Fall 2", "Rock Fall 1", "Sonic Minor", "Sonic Average", "Sonic Deadly", "Stun Strong",
+                "Stun Devastating", "Frag Strong", "Frag Devastating", "Plasma Strong", "Plasma Devastating",
+                "Gas Strong", "Gas Devastating", "Sonic Strong", "Sonic Devastating"]
+        if not tsl:
+            list = list[:14]
+        return tsl
+
+    @staticmethod
     def get_bodybag_list():
         return ["Default", "Backpack", "Equipment Pack", "Bagand Strap", "Metal Case", "Cloth Pile", "Pouch",
                 "Tuskan Rags", "Rancor Corpse", "Krayt Corpse"]
