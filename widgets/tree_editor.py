@@ -30,7 +30,7 @@ class AbstractTreeEditor(QWidget):
 
     def init_multiline_edit(self, catergory, field):
         line_edit = QPlainTextEdit()
-        line_edit.setMaximumHeight(23)
+        line_edit.setMaximumHeight(69)
         line_edit.setFrameStyle(QFrame.NoFrame)
         line_edit.setStyleSheet("background: rgb(0,0,0,0%)")
         self.ui.tree.setItemWidget(self.get_node(catergory, field), 1, line_edit)
