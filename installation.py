@@ -94,6 +94,13 @@ class Installation:
         return list
 
     @staticmethod
+    def get_max_level(tsl=True):
+        if tsl:
+            return 50
+        else:
+            return 20
+
+    @staticmethod
     def find_resource(res_ref, res_type, installation=None, priority_path=""):
         if type(res_type) is str:
             res_type = resource_types[res_type]
