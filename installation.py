@@ -59,6 +59,20 @@ class Installation:
         return labels
 
     @staticmethod
+    def get_placeable_list(installation):
+        # TODO: check override for 2da, have premade list for installation==None
+        data = TwoDA.from_data(installation.chitin.fetch_resource("placeables", "2da"))
+        labels = data.get_column_data("label")
+        return labels
+
+    @staticmethod
+    def get_door_list(installation):
+        # TODO: check override for 2da, have premade list for installation==None
+        data = TwoDA.from_data(installation.chitin.fetch_resource("genericdoors", "2da"))
+        labels = data.get_column_data("label")
+        return labels
+
+    @staticmethod
     def get_trap_type_list(tsl=True):
         list = ["Stun Minor", "Stun Average", "Stun Deadly", "Frag Minor", "Frag Average", "Frag Deadly",
                 "Plasma Minor", "Plasma Average", "Plasma Deadly", "Gas Minor", "Gas Average", "Gas Deadly",
