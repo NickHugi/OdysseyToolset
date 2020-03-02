@@ -1,5 +1,7 @@
 import os
 
+from pykotor.formats.mdl import MDL
+
 from pykotor.formats.tlk import TLK
 from pykotor.formats.twoda import TwoDA
 
@@ -43,6 +45,32 @@ class Installation:
 
     def get_tlk_entry_text(self, index):
         return TLK.fetch_entry_text(self.root_path + "/dialog.tlk", index)
+
+    def get_appearance_model(self, index):
+        # TODO: Allow for a good/evil parameter to influence the texture
+        models = []
+
+        appearance = TwoDA.from_data(self.chitin.fetch_resource("appearance", "2da"))
+        heads = TwoDA.from_data(self.chitin.fetch_resource("heads", "2da"))
+
+        model_type = appearance.get_cell("modeltype", index)
+        race = appearance.get_cell("race", index)
+        modela = appearance.get_cell("modela", index)
+
+        if race != "":
+            body_model = Installation.find_model(race, self)
+        else:
+            body_model = Installation.find_model(modela, self)
+        models.append(body_model)
+
+        if model_type == "B":
+            head_index = appearance.get_integer("normalhead", index)
+            head_res_ref = heads.get_cell("head", head_index)
+            head_model = self.find_model(head_res_ref, self)
+            models.append(head_model)
+        print(models)
+
+        return models
 
     @staticmethod
     def get_appearance_list(installation):
@@ -175,3 +203,12 @@ class Installation:
             return texture
 
         return None
+
+    @staticmethod
+    def find_model(res_ref, installation=None, priority_path=""):
+        if installation is not None:
+            data = installation.chitin.fetch_resource(res_ref.lower(), "mdl")
+            data_ext = installation.chitin.fetch_resource(res_ref.lower(), "mdx")
+            if data is None:
+                return None
+            return MDL.from_data(data, data_ext)
