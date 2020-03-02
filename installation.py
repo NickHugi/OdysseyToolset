@@ -52,6 +52,13 @@ class Installation:
         return labels
 
     @staticmethod
+    def get_soundset_list(installation):
+        # TODO: check override for 2da, have premade list for installation==None
+        data = TwoDA.from_data(installation.chitin.fetch_resource("soundset", "2da"))
+        labels = data.get_column_data("label")
+        return labels
+
+    @staticmethod
     def get_bodybag_list():
         return ["Default", "Backpack", "Equipment Pack", "Bagand Strap", "Metal Case", "Cloth Pile", "Pouch",
                 "Tuskan Rags", "Rancor Corpse", "Krayt Corpse"]
