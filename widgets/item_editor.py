@@ -1,10 +1,12 @@
 from PyQt5 import QtCore
 from PyQt5.QtGui import QBrush
 from PyQt5.QtWidgets import QWidget, QPushButton
+from pykotor.formats.mdl import MDL
 
 from installation import Installation
+from pykotor.formats.twoda import TwoDA
 from ui import item_editor
-from widgets.model_renderer import ModelRenderer
+from widgets.model_renderer import ModelRenderer, Object
 from widgets.tree_editor import AbstractTreeEditor
 
 
@@ -98,8 +100,8 @@ class ItemEditor(AbstractTreeEditor):
 
     def base_item_changed(self, index):
         try:
-            genericdoors_data = TwoDA.from_data(self.installation.chitin.fetch_resource("placeables", "2da"))
-            model_name = genericdoors_data.get_cell("modelname", index).lower()
+            baseitems_data = TwoDA.from_data(self.installation.chitin.fetch_resource("baseitems", "2da"))
+            model_name = baseitems_data.get_cell("defaultmodel", index).lower()
             mdl_data = self.installation.chitin.fetch_resource(model_name, "mdl")
             mdx_data = self.installation.chitin.fetch_resource(model_name, "mdx")
             model = MDL.from_data(mdl_data, mdx_data)
