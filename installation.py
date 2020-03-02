@@ -67,7 +67,7 @@ class Installation:
                 "Gas Strong", "Gas Devastating", "Sonic Strong", "Sonic Devastating"]
         if not tsl:
             list = list[:14]
-        return tsl
+        return list
 
     @staticmethod
     def get_bodybag_list():
