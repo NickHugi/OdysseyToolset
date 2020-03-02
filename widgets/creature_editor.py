@@ -1,9 +1,13 @@
+import pyrr
 from PyQt5 import QtCore
 from PyQt5.QtGui import QBrush
 from PyQt5.QtWidgets import QWidget, QComboBox, QCheckBox, QSpinBox, QLineEdit, QPushButton, QSlider
+from pykotor.formats.mdl import MDL
 
 from installation import Installation
+from pykotor.formats.twoda import TwoDA
 from ui import creature_editor
+from widgets.model_renderer import Object, ModelRenderer
 from widgets.tree_editor import AbstractTreeEditor
 
 
@@ -15,6 +19,10 @@ class CreatureEditor(AbstractTreeEditor):
         self.ui.setupUi(self)
 
         self.installation = self.window().active_installation
+
+        if self.installation is not None:
+            self.model_renderer = ModelRenderer(self)
+            self.ui.splitter.addWidget(self.model_renderer)
 
         self.init_tree()
 
@@ -117,6 +125,7 @@ class CreatureEditor(AbstractTreeEditor):
             self.init_spin_box("Advanced", "Soundset")
         else:
             self.init_combo_box("Basic", "Appearance", items=Installation.get_appearance_list(self.installation))
+            self.get_node_widget("Basic", "Appearance").currentIndexChanged.connect(self.appearance_changed)
             self.init_combo_box("Advanced", "Soundset", items=Installation.get_soundset_list(self.installation))
 
     def open_feats_dialog(self):
@@ -137,3 +146,21 @@ class CreatureEditor(AbstractTreeEditor):
             if index < self.installation.get_tlk_entry_count():
                 text = self.installation.get_tlk_entry_text(index)
                 self.get_node_widget("Name", "TLK Text").setText(text)
+
+    def appearance_changed(self, index):
+        try:
+            models = self.installation.get_appearance_model(index)
+
+            self.model_renderer.objects.clear()
+
+            self.model_renderer.model_buffer["body"] = models[0]
+            self.model_renderer.objects.append(Object("body"))
+            if len(models) == 2:
+                head_position = models[0].find_node("headhook").get_absolute_position()
+                head_position_pyrr = pyrr.vector3.create(head_position.x, head_position.y, head_position.z)
+
+                self.model_renderer.model_buffer["head"] = models[1]
+                head_object = Object("head", head_position_pyrr)
+                self.model_renderer.objects.append(head_object)
+        except Exception as e:
+            print("Failed to load creature appearance model:", e)

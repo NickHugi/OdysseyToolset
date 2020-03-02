@@ -20,6 +20,7 @@ class Ui_Form(object):
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
         self.tree = QtWidgets.QTreeWidget(self.splitter)
+        self.tree.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.tree.setAlternatingRowColors(True)
         self.tree.setRootIsDecorated(True)
         self.tree.setUniformRowHeights(False)
