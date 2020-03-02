@@ -44,6 +44,17 @@ class Installation:
     def get_tlk_entry_text(self, index):
         return TLK.fetch_entry_text(self.root_path + "/dialog.tlk", index)
 
+    def get_faction_list(self, tsl=True):
+        list = ["Friendly 1", "Hostile 2", "Friendly 2", "Neutral", "Insane", "Tuskan",
+                "GLB XOR", "Surrender 1", "Surrender 2", "Predator", "Prey", "Trap",
+                "Endar Spire", "Rancor", "Gizka 1", "Gizka 2", "Czerka",
+                "Zone Controller", "Sacrafice", "One On One", "Party Puppet"]
+
+        if not tsl:
+            list = list[:-3]
+
+        return list
+
     @staticmethod
     def find_resource(res_ref, res_type, installation=None, priority_path=""):
         if type(res_type) is str:
