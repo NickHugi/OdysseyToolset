@@ -1,6 +1,7 @@
 import os
 
 from pykotor.formats.tlk import TLK
+from pykotor.formats.twoda import TwoDA
 
 from pykotor.globals import resource_types
 
@@ -22,7 +23,6 @@ class Installation:
         self.chitin = None
 
         self.chitin = KEY.from_path(self.chitin_path)
-        self.get_module_list()
 
     def get_module_list(self):
         modules = {}
@@ -43,6 +43,14 @@ class Installation:
 
     def get_tlk_entry_text(self, index):
         return TLK.fetch_entry_text(self.root_path + "/dialog.tlk", index)
+
+    @staticmethod
+    def get_appearance_list(installation):
+        # TODO: check override for 2da, have premade list for installation==None
+        data = TwoDA.from_data(installation.chitin.fetch_resource("appearance", "2da"))
+        labels = data.get_column_data("label")
+        return labels
+
 
     @staticmethod
     def get_faction_list(tsl=True):
