@@ -60,14 +60,22 @@ class Installation:
     def get_gender_list():
         return ["Male", "Female", "Both", "Other", "None"]
 
+    @staticmethod
     def get_race_list():
         return ["Human", "Droid"]
 
+    @staticmethod
     def get_subrace_list(tsl=True):
         list = ["None", "Wookie", "Beast", "Zabrak"]
         if not tsl:
             list = list[:-1]
         return list
+
+    @staticmethod
+    def get_phenotype_list(self):
+        return ["Normal", "Skinny", "Large"]
+
+    
 
     @staticmethod
     def find_resource(res_ref, res_type, installation=None, priority_path=""):
