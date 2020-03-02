@@ -31,7 +31,7 @@ class PlaceableEditor(AbstractTreeEditor):
         for i in range(self.ui.tree.topLevelItemCount()):
             self.ui.tree.topLevelItem(i).setForeground(0, QBrush(QtCore.Qt.gray))
 
-        inventory_button = QPushButton("Inventory")
+        inventory_button = QPushButton("...")
         inventory_button.setFixedHeight(17)
         inventory_button.clicked.connect(self.open_inventory_dialog)
         self.ui.tree.setItemWidget(self.ui.tree.findItems("Inventory", QtCore.Qt.MatchExactly)[0], 1, inventory_button)
@@ -74,7 +74,7 @@ class PlaceableEditor(AbstractTreeEditor):
         self.init_line_edit("Scripts", "Used")
         self.init_line_edit("Scripts", "Opened")
         self.init_line_edit("Scripts", "Closed")
-        self.init_line_edit("Scripts", "UnLocked")
+        self.init_line_edit("Scripts", "Unlocked")
         self.init_line_edit("Scripts", "Locked")
         self.init_line_edit("Scripts", "After Talking")
         self.init_line_edit("Scripts", "Inventory Accessed")
@@ -122,8 +122,8 @@ class PlaceableEditor(AbstractTreeEditor):
 
     def appearance_changed(self, index):
         try:
-            genericdoors_data = TwoDA.from_data(self.installation.chitin.fetch_resource("placeables", "2da"))
-            model_name = genericdoors_data.get_cell("modelname", index).lower()
+            placeables_data = TwoDA.from_data(self.installation.chitin.fetch_resource("placeables", "2da"))
+            model_name = placeables_data.get_cell("modelname", index).lower()
             mdl_data = self.installation.chitin.fetch_resource(model_name, "mdl")
             mdx_data = self.installation.chitin.fetch_resource(model_name, "mdx")
             model = MDL.from_data(mdl_data, mdx_data)
