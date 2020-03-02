@@ -68,7 +68,6 @@ class Installation:
             head_res_ref = heads.get_cell("head", head_index)
             head_model = self.find_model(head_res_ref, self)
             models.append(head_model)
-        print(models)
 
         return models
 
@@ -76,6 +75,13 @@ class Installation:
     def get_appearance_list(installation):
         # TODO: check override for 2da, have premade list for installation==None
         data = TwoDA.from_data(installation.chitin.fetch_resource("appearance", "2da"))
+        labels = data.get_column_data("label")
+        return labels
+
+    @staticmethod
+    def get_base_item_list(installation):
+        # TODO: check override for 2da, have premade list for installation==None
+        data = TwoDA.from_data(installation.chitin.fetch_resource("baseitems", "2da"))
         labels = data.get_column_data("label")
         return labels
 
