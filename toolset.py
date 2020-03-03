@@ -3,7 +3,7 @@ import os
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSettings, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap, QImage
-from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTreeWidgetItem, QMenu, QAction
 from pykotor.formats.mdl import MDL
 
 from pykotor.formats.erf import ERF
@@ -60,6 +60,10 @@ class Toolset(QMainWindow):
         self.init_tree_model(self.ui.modules_tree, self.modules_model, self.modules_proxy)
         self.init_tree_model(self.ui.override_tree, self.override_model, self.override_proxy)
 
+        self.ui.core_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.modules_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.override_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+
         self.refresh_installation_list()
 
         self.init_ui_events()
@@ -90,6 +94,9 @@ class Toolset(QMainWindow):
         self.ui.action_new_sound.triggered.connect(self.new_sound_action_triggered)
         self.ui.action_open.triggered.connect(self.open_action_triggered)
         self.ui.filter_edit.textEdited.connect(self.filter_tree)
+        self.ui.core_tree.customContextMenuRequested.connect(self.show_tree_context_menu)
+        self.ui.modules_tree.customContextMenuRequested.connect(self.show_tree_context_menu)
+        self.ui.override_tree.customContextMenuRequested.connect(self.show_tree_context_menu)
 
     def refresh_installation_list(self):
         self.ui.installation_combo.clear()
@@ -305,6 +312,30 @@ class Toolset(QMainWindow):
         self.core_proxy.setFilterFixedString(string)
         self.modules_proxy.setFilterFixedString(string)
         self.override_proxy.setFilterFixedString(string)
+
+    def show_tree_context_menu(self, position):
+        indexes = self.ui.core_tree.selectedIndexes()
+        if len(indexes) == 0:
+            return
+
+        if self.ui.tree_tabs.currentIndex() == 0:
+            model = self.core_model
+            tree = self.ui.core_tree
+        elif self.ui.tree_tabs.currentIndex() == 1:
+            model = self.modules_model
+            tree = self.ui.modules_tree
+        else:
+            model = self.override_model
+            tree = self.ui.override_tree
+
+        ext = model.itemFromIndex(self.core_proxy.mapToSource(self.ui.core_tree.selectedIndexes()[1])).text()
+        res_type = resource_types[ext.lower()]
+
+        menu = QMenu()
+
+        # if res_type.extension == "":
+
+        menu.exec_(tree.viewport().mapToGlobal(position))
 
     def tools_erf_action_triggered(self):
         window = ERFEditor()
