@@ -333,16 +333,17 @@ class Toolset(QMainWindow):
 
         menu = QMenu()
 
-        resource = self.get_selected_data()[0]
-        self.open_resource(resource["res_ref"], resource["res_type"], resource["res_data"])
-
         extract_action = menu.addAction("Extract")
         extract_action.triggered.connect(self.extract_button_clicked)
         open_action = menu.addAction("Open")
         open_action.triggered.connect(self.open_button_clicked)
         menu.addSeparator()
 
-        # if res_type.extension == "":
+        if res_type == "mdl":
+            menu.addAction("Decompile Binary")
+        if res_type == "utc" or res_type == "uti" or res_type == "utd" or res_type == "utp" or res_type == "ute" or \
+                res_type == "utt" or res_type == "utm" or res_type == "uts" or res_type == "dlg" or res_type == "utw":
+            menu.addAction("Open in GFF Editor")
 
         menu.exec_(tree.viewport().mapToGlobal(position))
 
