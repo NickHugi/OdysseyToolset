@@ -253,7 +253,7 @@ class Toolset(QMainWindow):
     def open_resource(self, res_ref, res_type, res_data, file_path=""):
         widget = None
 
-        if res_type == resource_types["tpc"] or res_type == resource_types["tga"] or res_type == resource_types["bmp"]\
+        if res_type == resource_types["tpc"] or res_type == resource_types["tga"] or res_type == resource_types["bmp"] \
                 or res_type == resource_types["png"] or res_type == resource_types["jpg"]:
             widget = TextureViewer.open_resource(self, res_ref, res_type, res_data)
 
@@ -332,6 +332,15 @@ class Toolset(QMainWindow):
         res_type = resource_types[ext.lower()]
 
         menu = QMenu()
+
+        resource = self.get_selected_data()[0]
+        self.open_resource(resource["res_ref"], resource["res_type"], resource["res_data"])
+
+        extract_action = menu.addAction("Extract")
+        extract_action.triggered.connect(self.extract_button_clicked)
+        open_action = menu.addAction("Open")
+        open_action.triggered.connect(self.open_button_clicked)
+        menu.addSeparator()
 
         # if res_type.extension == "":
 
