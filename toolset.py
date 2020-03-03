@@ -89,6 +89,7 @@ class Toolset(QMainWindow):
         self.ui.action_new_encounter.triggered.connect(self.new_encounter_action_triggered)
         self.ui.action_new_sound.triggered.connect(self.new_sound_action_triggered)
         self.ui.action_open.triggered.connect(self.open_action_triggered)
+        self.ui.filter_edit.textEdited.connect(self.filter_tree)
 
     def refresh_installation_list(self):
         self.ui.installation_combo.clear()
@@ -299,6 +300,11 @@ class Toolset(QMainWindow):
         file = open(path, 'wb')
         file.write(data)
         file.close()
+
+    def filter_tree(self, string):
+        self.core_proxy.setFilterFixedString(string)
+        self.modules_proxy.setFilterFixedString(string)
+        self.override_proxy.setFilterFixedString(string)
 
     def tools_erf_action_triggered(self):
         window = ERFEditor()
