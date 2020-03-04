@@ -33,41 +33,12 @@ class WaypointEditor(AbstractTreeEditor):
         self.init_localized_string_nodes("Map Note", False)
         self.init_localized_string_nodes("Description", True)
 
-    def init_button(self, item, text):
-        button = QPushButton()
-        button.setText(text)
-        button.setFixedHeight(17)
-        self.ui.tree.setItemWidget(item, 1, button)
-        return button
+    def load(self, utw):
+        self.set_note_data("Basic", "Script Tag", utw.find_field_data("Tag", default=""))
+        self.set_note_data("Basic", "Template", utw.find_field_data("TemplateResRef", default=""))
+        self.set_note_data("Basic", "Map Note", utw.find_field_data("HasMapNote", default=False))
+        self.set_note_data("Basic", "Note Active", utw.find_field_data("MapNoteEnabled", default=False))
 
-    def init_line_edit(self, item):
-        line_edit = QLineEdit()
-        line_edit.setFixedHeight(23)
-        line_edit.setStyleSheet("background: rgb(0,0,0,0%)")
-        self.ui.tree.setItemWidget(item, 1, line_edit)
-        return line_edit
+        self.set_localized_string_nodes("Name", utw.find_field_data("LocalizedName"))
+        self.set_localized_string_nodes("Name", utw.find_field_data("LocalizedName"))
 
-    def init_spin_box(self, item, min=0, max=999999):
-        spin_box = QSpinBox()
-        spin_box.setMaximum(max)
-        spin_box.setMinimum(min)
-        spin_box.setFixedHeight(23)
-        spin_box.setStyleSheet("background: rgb(0,0,0,0%); border-width: 0px; border-style: none;")
-        self.ui.tree.setItemWidget(item, 1, spin_box)
-        return spin_box
-
-    def init_check_box(self, item, checked=False):
-        check_box = QCheckBox()
-        check_box.setFixedHeight(23)
-        check_box.setStyleSheet("QCheckBox::indicator { width: 23; height: 23;}")
-        self.ui.tree.setItemWidget(item, 1, check_box)
-        return check_box
-
-    def init_combo_box(self, item, items=[]):
-        combo_box = QComboBox()
-        combo_box.setFixedHeight(23)
-        combo_box.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        combo_box.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-        combo_box.addItems(items)
-        self.ui.tree.setItemWidget(item, 1, combo_box)
-        return combo_box
