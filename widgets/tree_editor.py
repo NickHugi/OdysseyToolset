@@ -3,6 +3,7 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QBrush, QFontInfo, QFontMetrics
 from PyQt5.QtWidgets import QWidget, QPushButton, QLineEdit, QSpinBox, QCheckBox, QComboBox, QSlider, QTreeWidgetItem, \
     QPlainTextEdit, QFrame, QSizePolicy, QLabel
+from pykotor.globals import Language
 
 
 class AbstractTreeEditor(QWidget):
@@ -36,11 +37,12 @@ class AbstractTreeEditor(QWidget):
         self.ui.tree.setItemWidget(self.get_node(catergory, field), 1, line_edit)
         return line_edit
 
-    def init_spin_box(self, catergory, field, min=0, max=999999):
+    def init_spin_box(self, catergory, field, min=0, max=999999, default=0):
         spin_box = QSpinBox()
         spin_box.setMaximum(max)
         spin_box.setMinimum(min)
         spin_box.setFixedHeight(23)
+        spin_box.setValue(default)
         spin_box.setStyleSheet("background: rgb(0,0,0,0%); border-width: 0px; border-style: none;")
         self.ui.tree.setItemWidget(self.get_node(catergory, field), 1, spin_box)
         return spin_box
@@ -73,7 +75,7 @@ class AbstractTreeEditor(QWidget):
         return slider
 
     def get_node(self, category, field):
-        catergory_node = self.ui.tree.findItems(category, QtCore.Qt.MatchExactly | QtCore.Qt.MatchRecursive)[0]
+        catergory_node = self.ui.tree.findItems(category, QtCore.Qt.MatchExactly)[0]
         for i in range(catergory_node.childCount()):
             child = catergory_node.child(i)
             if child.text(0) == field:
@@ -82,3 +84,83 @@ class AbstractTreeEditor(QWidget):
     def get_node_widget(self, catergory, field):
         node = self.get_node(catergory, field)
         return self.ui.tree.itemWidget(node, 1)
+
+    def set_note_data(self, catergory, field, data):
+        widget = self.get_node_widget(catergory, field)
+
+        if type(widget) is QLineEdit:
+            if type(data) is str:
+                widget.setText(data)
+        if type(widget) is QCheckBox:
+            if type(data) is int:
+                if data == 1: widget.setChecked(True)
+                else: widget.setChecked(False)
+            elif type(data) is bool:
+                widget.setChecked(data)
+        if type(widget) is QSpinBox:
+            if type(data) is int:
+                widget.setValue(data)
+
+    def set_localized_string_nodes(self, category, localized_string):
+        if localized_string is not None:
+            self.set_note_data("Name", "TLK Reference", localized_string.string_id)
+            if Language.English * 2 in localized_string.substrings:
+                self.set_note_data("Name", "English", localized_string.substrings[Language.English * 2])
+            if Language.French * 2 in localized_string.substrings:
+                self.set_note_data("Name", "French", localized_string.substrings[Language.French * 2])
+            if Language.German * 2 in localized_string.substrings:
+                self.set_note_data("Name", "German", localized_string.substrings[Language.German * 2])
+            if Language.Italian * 2 in localized_string.substrings:
+                self.set_note_data("Name", "Italian", localized_string.substrings[Language.Italian * 2])
+            if Language.Spanish * 2 in localized_string.substrings:
+                self.set_note_data("Name", "Spanish", localized_string.substrings[Language.Spanish * 2])
+            if Language.Polish * 2 in localized_string.substrings:
+                self.set_note_data("Name", "Polish", localized_string.substrings[Language.Polish * 2])
+
+    def init_localized_string_nodes(self, catergory, multiline=False):
+        if multiline:
+            self.init_spin_box(catergory, "TLK Reference", min=-1, default=-1)
+            self.init_multiline_edit(catergory, "TLK Text")
+            self.get_node_widget(catergory, "TLK Text").setReadOnly(True)
+            self.init_multiline_edit(catergory, "English")
+            self.init_multiline_edit(catergory, "French")
+            self.init_multiline_edit(catergory, "German")
+            self.init_multiline_edit(catergory, "Italian")
+            self.init_multiline_edit(catergory, "Spanish")
+            self.init_multiline_edit(catergory, "Polish")
+            self.init_multiline_edit(catergory, "Korean")
+        else:
+            self.init_spin_box(catergory, "TLK Reference", min=-1, default=-1)
+            self.init_line_edit(catergory, "TLK Text")
+            self.get_node_widget(catergory, "TLK Text").setReadOnly(True)
+            self.init_line_edit(catergory, "English")
+            self.init_line_edit(catergory, "French")
+            self.init_line_edit(catergory, "German")
+            self.init_line_edit(catergory, "Italian")
+            self.init_line_edit(catergory, "Spanish")
+            self.init_line_edit(catergory, "Polish")
+            self.init_line_edit(catergory, "Korean")
+
+        if self.installation is None:
+            self.get_node(catergory, "TLK Text").parent().removeChild(self.get_node(catergory, "TLK Text"))
+
+        self.get_node_widget(catergory, "TLK Reference").valueChanged.connect(
+            lambda category=catergory: self.tlk_reference_changed(catergory))
+
+    def tlk_reference_changed(self, category):
+        if self.installation is not None:
+            index = self.get_node_widget(category, "TLK Reference").value()
+            widget = self.get_node_widget(category, "TLK Text")
+
+            if type(widget) is QLineEdit:
+                self.get_node_widget(category, "TLK Text").setText("")
+            if type(widget) is QPlainTextEdit:
+                self.get_node_widget(category, "TLK Text").setPlainText("")
+
+            if index < self.installation.get_tlk_entry_count() and index != -1:
+                text = self.installation.get_tlk_entry_text(index)
+                if type(widget) is QLineEdit:
+                    self.get_node_widget(category, "TLK Text").setText(text)
+                if type(widget) is QPlainTextEdit:
+                    self.get_node_widget(category, "TLK Text").setPlainText(text)
+
