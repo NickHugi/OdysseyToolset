@@ -101,7 +101,7 @@ class Ui_Form(object):
         self.tree.topLevelItem(3).child(0).setText(0, _translate("Form", "Is Trap"))
         self.tree.topLevelItem(3).child(1).setText(0, _translate("Form", "Trap Type"))
         self.tree.topLevelItem(3).child(2).setText(0, _translate("Form", "One-Shot"))
-        self.tree.topLevelItem(3).child(3).setText(0, _translate("Form", "Findable"))
+        self.tree.topLevelItem(3).child(3).setText(0, _translate("Form", "Detectable"))
         self.tree.topLevelItem(3).child(4).setText(0, _translate("Form", "Disarmable"))
         self.tree.topLevelItem(3).child(5).setText(0, _translate("Form", "Detection DC"))
         self.tree.topLevelItem(3).child(6).setText(0, _translate("Form", "Disarm DC"))
