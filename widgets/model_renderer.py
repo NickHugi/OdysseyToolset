@@ -124,7 +124,6 @@ class ModelRenderer(QOpenGLWidget):
         for model_name, model in self.model_buffer.items():
             for texture_name in model.textures:
                 if texture_name not in self.textures:
-                    tex = Installation.find_texture(texture_name, self.window().active_installation)
                     texture_id = glGenTextures(1)
                     glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
                     glBindTexture(GL_TEXTURE_2D, texture_id)
@@ -132,7 +131,11 @@ class ModelRenderer(QOpenGLWidget):
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex.width, tex.height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV , tex.get_rgba())
+                    tex = Installation.find_texture(texture_name, self.window().active_installation)
+                    if tex is None:
+                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0xFFFF00FF)
+                    else:
+                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex.width, tex.height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, tex.get_rgba())
                     self.textures[texture_name] = texture_id
             self.models[model_name] = self.load_node_data(model.root_node)
             self.build_node(self.models[model_name], model.root_node)
