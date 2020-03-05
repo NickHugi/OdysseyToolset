@@ -33,17 +33,7 @@ class DoorEditor(AbstractTreeEditor):
         self.init_line_edit("Basic", "Script Tag")
         self.init_line_edit("Basic", "Dialog")
 
-        self.init_spin_box("Name", "TLK Reference")
-        self.get_node_widget("Name", "TLK Reference").valueChanged.connect(self.tlk_name_changed)
-        self.init_line_edit("Name", "TLK Text")
-        self.get_node_widget("Name", "TLK Text").setReadOnly(True)
-        self.init_line_edit("Name", "English")
-        self.init_line_edit("Name", "French")
-        self.init_line_edit("Name", "German")
-        self.init_line_edit("Name", "Italian")
-        self.init_line_edit("Name", "Spanish")
-        self.init_line_edit("Name", "Polish")
-        self.init_line_edit("Name", "Korean")
+        self.init_localized_string_nodes("Name")
 
         self.init_combo_box("Advanced", "State", items=["Default", "Opened", "Closed"])
         self.init_combo_box("Advanced", "Faction", items=Installation.get_faction_list())
@@ -76,7 +66,7 @@ class DoorEditor(AbstractTreeEditor):
 
         self.init_check_box("Trap", "Is Trap")
         self.init_check_box("Trap", "One-Shot")
-        self.init_check_box("Trap", "Findable")
+        self.init_check_box("Trap", "Detectable")
         self.init_check_box("Trap", "Disarmable")
         self.init_spin_box("Trap", "Detection DC")
         self.init_spin_box("Trap", "Disarm DC")
@@ -91,18 +81,10 @@ class DoorEditor(AbstractTreeEditor):
         self.init_spin_box("Lock", "Lock DC")
 
         if self.installation is None:
-            self.get_node("Name", "TLK Text").parent().removeChild(self.get_node("Name", "TLK Text"))
             self.init_spin_box("Basic", "Appearance")
         else:
             self.init_combo_box("Basic", "Appearance", items=Installation.get_door_list(self.installation))
             self.get_node_widget("Basic", "Appearance").currentIndexChanged.connect(self.appearance_changed)
-
-    def tlk_name_changed(self, index):
-        if self.installation is not None:
-            self.get_node_widget("Name", "TLK Text").setText("")
-            if index < self.installation.get_tlk_entry_count():
-                text = self.installation.get_tlk_entry_text(index)
-                self.get_node_widget("Name", "TLK Text").setText(text)
 
     def appearance_changed(self, index):
         try:
@@ -117,3 +99,55 @@ class DoorEditor(AbstractTreeEditor):
         except Exception as e:
             print("Failed to load door appearance model:", e)
 
+    def load(self, utw):
+        self.set_note_data("Basic", "Script Tag", utw.find_field_data("Tag", default=""))
+        self.set_note_data("Basic", "Template", utw.find_field_data("TemplateResRef", default=""))
+        self.set_note_data("Basic", "Dialog", utw.find_field_data("Conversation", default=""))
+        self.set_note_data("Basic", "Appearance", utw.find_field_data("GenericType", default=0))
+
+        self.set_note_data("Advanced", "State", utw.find_field_data("AnimationState", default=0))
+        self.set_note_data("Advanced", "Faction", utw.find_field_data("Faction", default=0))
+
+        self.set_note_data("Other", "Fortitude", utw.find_field_data("Fort", default=0))
+        self.set_note_data("Other", "Will", utw.find_field_data("Will", default=0))
+        self.set_note_data("Other", "Reflex", utw.find_field_data("Ref", default=0))
+        self.set_note_data("Other", "Health", utw.find_field_data("CurrentHP", default=0))
+        self.set_note_data("Other", "Hardness", utw.find_field_data("Hardness", default=0))
+
+        self.set_note_data("Flags", "Plot", utw.find_field_data("Plot", default=False))
+        self.set_note_data("Flags", "Interruptable", utw.find_field_data("Interruptable", default=False))
+        self.set_note_data("Flags", "Invincible", utw.find_field_data("Min1HP", default=False))
+        self.set_note_data("Flags", "Static", utw.find_field_data("Static", default=False))
+
+        self.set_note_data("Scripts", "Routine", utw.find_field_data("OnHeartbeat", default=""))
+        self.set_note_data("Scripts", "Clicked", utw.find_field_data("OnClick", default=""))
+        self.set_note_data("Scripts", "Opened", utw.find_field_data("OnOpen", default=""))
+        self.set_note_data("Scripts", "Closed", utw.find_field_data("OnClosed", default=""))
+        self.set_note_data("Scripts", "Unlocked", utw.find_field_data("OnUnlock", default=""))
+        self.set_note_data("Scripts", "Locked", utw.find_field_data("OnLock", default=""))
+        self.set_note_data("Scripts", "Failed", utw.find_field_data("OnFailToOpen", default=""))
+        self.set_note_data("Scripts", "Attacked Physically", utw.find_field_data("OnMeleeAttacked", default=""))
+        self.set_note_data("Scripts", "Attacked Ability", utw.find_field_data("OnSpellCastAt", default=""))
+        self.set_note_data("Scripts", "Damaged", utw.find_field_data("OnDamaged", default=""))
+        self.set_note_data("Scripts", "Death", utw.find_field_data("OnDeath", default=""))
+        self.set_note_data("Scripts", "Disarmed", utw.find_field_data("OnDisarm", default=""))
+        self.set_note_data("Scripts", "Triggered", utw.find_field_data("OnTrapTriggered", default=""))
+        self.set_note_data("Scripts", "Custom", utw.find_field_data("OnUserDefined", default=""))
+
+        self.set_note_data("Trap", "Is Trap", utw.find_field_data("TrapFlag", default=False))
+        self.set_note_data("Trap", "One-Shot", utw.find_field_data("TrapOneShot", default=False))
+        self.set_note_data("Trap", "Detectable", utw.find_field_data("TrapDetectable", default=False))
+        self.set_note_data("Trap", "Disarmable", utw.find_field_data("TrapDisarmable", default=False))
+        self.set_note_data("Trap", "Detection DC", utw.find_field_data("TrapDetectDC", default=0))
+        self.set_note_data("Trap", "Disarm DC", utw.find_field_data("DisarmDC", default=0))
+        self.set_note_data("Trap", "Trap Type", utw.find_field_data("TrapType", default=0))
+
+        self.set_note_data("Lock", "Is Locked", utw.find_field_data("Locked", default=False))
+        self.set_note_data("Lock", "Lockable", utw.find_field_data("Lockable", default=False))
+        self.set_note_data("Lock", "Requires Key", utw.find_field_data("KeyRequired", default=False))
+        self.set_note_data("Lock", "Removes Key", utw.find_field_data("AutoRemoveKey", default=False))
+        self.set_note_data("Lock", "Key Tag", utw.find_field_data("KeyName", default=""))
+        self.set_note_data("Lock", "Lock DC", utw.find_field_data("CloseLockDC", default=0))
+        self.set_note_data("Lock", "Unlock DC", utw.find_field_data("OpenLockDC", default=0))
+
+        self.set_localized_string_nodes("Name", utw.find_field_data("LocName"))
