@@ -4,6 +4,8 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QSettings, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap, QImage
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTreeWidgetItem, QMenu, QAction
+
+from pykotor.formats.gff import GFF
 from pykotor.formats.mdl import MDL
 
 from pykotor.formats.erf import ERF
@@ -40,9 +42,10 @@ class Toolset(QMainWindow):
         self.ui.setupUi(self)
         self.show()
 
-        self.ui.console.hide()
         self.ui.tree_tabs.setEnabled(False)
         self.ui.filter_edit.setEnabled(False)
+        self.ui.tree_tabs.setTabEnabled(3, False)
+        self.ui.console.hide()
 
         self.subwindows = []
 
@@ -56,15 +59,21 @@ class Toolset(QMainWindow):
         self.modules_proxy = QSortFilterProxyModel(self)
         self.override_model = QStandardItemModel()
         self.override_proxy = QSortFilterProxyModel(self)
+        self.project_model = QStandardItemModel()
+        self.project_proxy = QSortFilterProxyModel(self)
         self.init_tree_model(self.ui.core_tree, self.core_model, self.core_proxy)
         self.init_tree_model(self.ui.modules_tree, self.modules_model, self.modules_proxy)
         self.init_tree_model(self.ui.override_tree, self.override_model, self.override_proxy)
+        self.init_tree_model(self.ui.project_tree, self.project_model, self.project_proxy)
 
         self.ui.core_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.modules_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.override_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.project_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
         self.refresh_installation_list()
+
+        self.project_directory = "A:/KM/Analysis Files/ut"
 
         self.init_ui_events()
 
@@ -97,6 +106,7 @@ class Toolset(QMainWindow):
         self.ui.core_tree.customContextMenuRequested.connect(self.show_tree_context_menu)
         self.ui.modules_tree.customContextMenuRequested.connect(self.show_tree_context_menu)
         self.ui.override_tree.customContextMenuRequested.connect(self.show_tree_context_menu)
+        self.ui.project_tree.customContextMenuRequested.connect(self.show_tree_context_menu)
 
     def refresh_installation_list(self):
         self.ui.installation_combo.clear()
@@ -158,6 +168,12 @@ class Toolset(QMainWindow):
             res_ref = name[:name.index('.')]
             res_extension = name[name.index(".") + 1:].lower()
             self.build_tree_add_resource(self.override_model, res_ref, resource_types[res_extension])
+
+        for file in os.listdir(self.project_directory):
+            file_path = self.project_directory + "/" + file
+            res_ref = file[:file.index('.')]
+            res_extension = file[file.index(".") + 1:].lower()
+            self.build_tree_add_resource(self.project_model, res_ref, resource_types[res_extension])
 
         self.ui.tree_tabs.setEnabled(True)
         self.ui.filter_edit.setEnabled(True)
@@ -253,11 +269,10 @@ class Toolset(QMainWindow):
     def open_resource(self, res_ref, res_type, res_data, file_path=""):
         widget = None
 
-        if res_type == resource_types["tpc"] or res_type == resource_types["tga"] or res_type == resource_types["bmp"] \
-                or res_type == resource_types["png"] or res_type == resource_types["jpg"]:
+        if res_type == "tpc" or res_type == "tga" or res_type == "bmp" or res_type == "png" or res_type == "jpg":
             widget = TextureViewer.open_resource(self, res_ref, res_type, res_data)
 
-        if res_type == resource_types["mdl"]:
+        if res_type == "mdl":
             data_ext = Installation.find_resource(res_ref, "mdx", self.active_installation, os.path.dirname(file_path))
             mdl = MDL.from_data(res_data, data_ext)
             widget = ModelRenderer(self)
@@ -265,7 +280,7 @@ class Toolset(QMainWindow):
             widget.objects.append(Object(res_ref))
 
         if widget is not None:
-            self.ui.file_tabs.addTab(widget, res_ref + res_type.extension)
+            self.ui.file_tabs.addTab(widget, res_ref + "." + res_type.extension)
 
     # Events
     def installation_combo_changed(self, index):
