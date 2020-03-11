@@ -41,17 +41,7 @@ class PlaceableEditor(AbstractTreeEditor):
         self.init_line_edit("Basic", "Dialog")
         self.init_combo_box("Basic", "Body Bag", items=Installation.get_bodybag_list())
 
-        self.init_spin_box("Name", "TLK Reference")
-        self.get_node_widget("Name", "TLK Reference").valueChanged.connect(self.tlk_name_changed)
-        self.init_line_edit("Name", "TLK Text")
-        self.get_node_widget("Name", "TLK Text").setReadOnly(True)
-        self.init_line_edit("Name", "English")
-        self.init_line_edit("Name", "French")
-        self.init_line_edit("Name", "German")
-        self.init_line_edit("Name", "Italian")
-        self.init_line_edit("Name", "Spanish")
-        self.init_line_edit("Name", "Polish")
-        self.init_line_edit("Name", "Korean")
+        self.init_localized_string_nodes("Name")
 
         self.init_combo_box("Advanced", "State", items=["Default", "Opened", "Closed", "Dead", "Activated", "Deactivated"])
         self.init_combo_box("Advanced", "Faction", items=Installation.get_faction_list())
@@ -112,13 +102,6 @@ class PlaceableEditor(AbstractTreeEditor):
     def open_inventory_dialog(self):
         # TODO
         print("open inventory dialog")
-
-    def tlk_name_changed(self, index):
-        if self.installation is not None:
-            self.get_node_widget("Name", "TLK Text").setText("")
-            if index < self.installation.get_tlk_entry_count():
-                text = self.installation.get_tlk_entry_text(index)
-                self.get_node_widget("Name", "TLK Text").setText(text)
 
     def appearance_changed(self, index):
         try:
