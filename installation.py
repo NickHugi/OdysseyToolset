@@ -1,5 +1,6 @@
 import os
 
+from pykotor import k1_globals, k2_globals
 from pykotor.formats.mdl import MDL
 
 from pykotor.formats.tlk import TLK
@@ -72,6 +73,16 @@ class Installation:
         return models
 
     @staticmethod
+    def get_feats_list(installation, tsl=True):
+        feats = k2_globals.feats
+        return feats
+
+    @staticmethod
+    def get_powers_list(installation, tsl=True):
+        powers = k2_globals.powers
+        return powers
+
+    @staticmethod
     def get_appearance_list(installation):
         # TODO: check override for 2da, have premade list for installation==None
         data = TwoDA.from_data(installation.chitin.fetch_resource("appearance", "2da"))
@@ -124,7 +135,7 @@ class Installation:
 
     @staticmethod
     def get_faction_list(tsl=True):
-        list = ["Friendly 1", "Hostile 2", "Friendly 2", "Neutral", "Insane", "Tuskan",
+        list = ["Player", "Hostile 1", "Friendly 1", "Hostile 2", "Friendly 2", "Neutral", "Insane", "Tuskan",
                 "GLB XOR", "Surrender 1", "Surrender 2", "Predator", "Prey", "Trap",
                 "Endar Spire", "Rancor", "Gizka 1", "Gizka 2", "Czerka",
                 "Zone Controller", "Sacrifice", "One On One", "Party Puppet"]
@@ -140,7 +151,7 @@ class Installation:
 
     @staticmethod
     def get_race_list():
-        return ["Human", "Droid"]
+        return ["Droid", "Human"]
 
     @staticmethod
     def get_subrace_list(tsl=True):
@@ -205,8 +216,9 @@ class Installation:
     def find_texture(res_ref, installation=None, priority_path=""):
         if installation is not None:
             data = ERF.fetch_resource(installation.textures_path + "/swpc_tex_tpa.erf", res_ref, "tpc")
-            texture = TPC.from_data(data)
-            return texture
+            if data is not None:
+                texture = TPC.from_data(data)
+                return texture
 
         return None
 

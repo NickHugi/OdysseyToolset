@@ -279,6 +279,46 @@ class Toolset(QMainWindow):
             widget.model_buffer[res_ref] = mdl
             widget.objects.append(Object(res_ref))
 
+        if res_type == "utw":
+            gff = GFF.from_data(res_data)
+            widget = WaypointEditor(self)
+            widget.load(gff)
+
+        if res_type == "utt":
+            gff = GFF.from_data(res_data)
+            widget = TriggerEditor(self)
+            widget.load(gff)
+
+        if res_type == "ute":
+            gff = GFF.from_data(res_data)
+            widget = EncounterEditor(self)
+            widget.load(gff)
+
+        if res_type == "utm":
+            gff = GFF.from_data(res_data)
+            widget = MerchantEditor(self)
+            widget.load(gff)
+
+        if res_type == "uts":
+            gff = GFF.from_data(res_data)
+            widget = SoundEditor(self)
+            widget.load(gff)
+
+        if res_type == "uti":
+            gff = GFF.from_data(res_data)
+            widget = ItemEditor(self)
+            widget.load(gff)
+
+        if res_type == "utd":
+            gff = GFF.from_data(res_data)
+            widget = DoorEditor(self)
+            widget.load(gff)
+
+        if res_type == "utc":
+            gff = GFF.from_data(res_data)
+            widget = CreatureEditor(self)
+            widget.load(gff)
+
         if widget is not None:
             self.ui.file_tabs.addTab(widget, res_ref + "." + res_type.extension)
 
