@@ -249,7 +249,7 @@ class CreatureEditor(AbstractTreeEditor):
 
         self.set_localized_string_nodes("Name", utc.find_field_data("FirstName"))
 
-    def save(self, path):
+    def build(self):
         utc = GFF()
 
         utc.root.add_field(FieldType.String, "Tag", self.get_node_data("Basic", "Script Tag"))
@@ -301,4 +301,4 @@ class CreatureEditor(AbstractTreeEditor):
         utc.root.add_field(FieldType.List, "Equip_ItemList", utc_equipment_list)
 
         utc.root.add_field(FieldType.LocalizedString, "FirstName", self.get_node_localized_string("Name"))
-        utc.to_path(path)
+        return utc
