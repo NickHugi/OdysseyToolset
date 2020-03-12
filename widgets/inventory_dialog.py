@@ -7,11 +7,13 @@ from ui import inventory_dialog
 
 
 class InventoryDialog(QDialog):
-    def __init__(self, parent, inventory, installation=None, module=None):
+    def __init__(self, parent, inventory, container="human", installation=None, module=None):
         QDialog.__init__(self, parent)
 
         self.ui = inventory_dialog.Ui_Form()
         self.ui.setupUi(self)
+
+        self.container = container
 
         self.model = QStandardItemModel()
         self.ui.inventory_table.setModel(self.model)
@@ -20,8 +22,6 @@ class InventoryDialog(QDialog):
         self.set_inventory(inventory)
         self.installation = installation
         self.module = module
-
-        self.droid = False
 
         self.ui.head_name.hide()
         self.ui.implant_name.hide()
@@ -37,16 +37,19 @@ class InventoryDialog(QDialog):
         self.ui.creature2_name.hide()
         self.ui.creature3_name.hide()
 
+        if self.container == "placeable":
+            self.ui.equipment_tabs.hide()
+            self.ui.inventory_table.hideColumn(2)
+
         # TODO: item tree
         self.ui.items_tree.hide()
 
-        if installation is not None:
-            core_items = installation.chitin.resources_by_type("uti")
-            for item in core_items:
-                self.ui.items_tree.insertTopLevelItem(0, QTreeWidgetItem([item, ""]))
+        #if installation is not None:
+        #    core_items = installation.chitin.resources_by_type("uti")
+        #    for item in core_items:
+        #        self.ui.items_tree.insertTopLevelItem(0, QTreeWidgetItem([item, ""]))
 
     def set_droid_labels(self):
-        self.droid = True
         self.ui.implant_label.setText("Utility")
         self.ui.gauntlet_label.setText("Utility")
         self.ui.head_label.setText("Sensor")
