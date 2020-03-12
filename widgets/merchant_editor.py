@@ -40,11 +40,11 @@ class MerchantEditor(AbstractTreeEditor):
         pass
 
     def load(self, utw):
-        self.set_note_data("Basic", "Script Tag", utw.find_field_data("Tag", default=""))
-        self.set_note_data("Basic", "Template", utw.find_field_data("ResRef", default=""))
-        self.set_note_data("Basic", "Script", utw.find_field_data("OnOpenStore", default=""))
-        self.set_note_data("Basic", "Type", utw.find_field_data("BuySellFlag", default=0)-1)
-        self.set_note_data("Basic", "Mark Up", utw.find_field_data("MarkUp", default=0))
-        self.set_note_data("Basic", "Mark Down", utw.find_field_data("MarkDown", default=0))
+        self.set_node_data("Basic", "Script Tag", utw.find_field_data("Tag", default=""))
+        self.set_node_data("Basic", "Template", utw.find_field_data("ResRef", default=""))
+        self.set_node_data("Basic", "Script", utw.find_field_data("OnOpenStore", default=""))
+        self.set_node_data("Basic", "Type", utw.find_field_data("BuySellFlag", default=0) - 1)
+        self.set_node_data("Basic", "Mark Up", utw.find_field_data("MarkUp", default=0))
+        self.set_node_data("Basic", "Mark Down", utw.find_field_data("MarkDown", default=0))
 
         self.set_localized_string_nodes("Name", utw.find_field_data("LocName"))

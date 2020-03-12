@@ -34,25 +34,23 @@ class WaypointEditor(AbstractTreeEditor):
         self.init_localized_string_nodes("Description", True)
 
     def load(self, utw):
-        self.set_note_data("Basic", "Script Tag", utw.find_field_data("Tag", default=""))
-        self.set_note_data("Basic", "Template", utw.find_field_data("TemplateResRef", default=""))
-        self.set_note_data("Basic", "Map Note", utw.find_field_data("HasMapNote", default=False))
-        self.set_note_data("Basic", "Note Active", utw.find_field_data("MapNoteEnabled", default=False))
+        self.set_node_data("Basic", "Script Tag", utw.find_field_data("Tag", default=""))
+        self.set_node_data("Basic", "Template", utw.find_field_data("TemplateResRef", default=""))
+        self.set_node_data("Basic", "Map Note", utw.find_field_data("HasMapNote", default=False))
+        self.set_node_data("Basic", "Note Active", utw.find_field_data("MapNoteEnabled", default=False))
 
         self.set_localized_string_nodes("Name", utw.find_field_data("LocalizedName"))
         self.set_localized_string_nodes("Map Note", utw.find_field_data("MapNote"))
         self.set_localized_string_nodes("Description", utw.find_field_data("Description"))
 
-    def save(self):
+    def save(self, path):
         path = QFileDialog.getSaveFileName(parent=self)[0]
-
-        if path != "":
-            utw = GFF()
-            utw.root.add_field(FieldType.String, "Tag", self.get_node_data("Basic", "Script Tag"))
-            utw.root.add_field(FieldType.ResRef, "TemplateResRef", self.get_node_data("Basic", "Template"))
-            utw.root.add_field(FieldType.Int8, "HasMapNote", self.get_node_data("Basic", "Map Note"))
-            utw.root.add_field(FieldType.Int8, "MapNoteEnabled", self.get_node_data("Basic", "Note Active"))
-            utw.root.add_field(FieldType.LocalizedString, "LocalizedName", self.get_node_localized_string("Name"))
-            utw.root.add_field(FieldType.LocalizedString, "Description", self.get_node_localized_string("Description"))
-            utw.root.add_field(FieldType.LocalizedString, "MapNote", self.get_node_localized_string("Map Note"))
-            utw.to_path(path)
+        utw = GFF()
+        utw.root.add_field(FieldType.String, "Tag", self.get_node_data("Basic", "Script Tag"))
+        utw.root.add_field(FieldType.ResRef, "TemplateResRef", self.get_node_data("Basic", "Template"))
+        utw.root.add_field(FieldType.Int8, "HasMapNote", self.get_node_data("Basic", "Map Note"))
+        utw.root.add_field(FieldType.Int8, "MapNoteEnabled", self.get_node_data("Basic", "Note Active"))
+        utw.root.add_field(FieldType.LocalizedString, "LocalizedName", self.get_node_localized_string("Name"))
+        utw.root.add_field(FieldType.LocalizedString, "Description", self.get_node_localized_string("Description"))
+        utw.root.add_field(FieldType.LocalizedString, "MapNote", self.get_node_localized_string("Map Note"))
+        utw.to_path(path)
