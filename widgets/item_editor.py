@@ -110,8 +110,6 @@ class ItemEditor(AbstractTreeEditor):
             item_property.param2_table = uti.find_field_data("PropertiesList", i, "Param2", default=-1)
             self.item_properties.append(item_property)
 
-        self.build().to_path("A:/KM/Analysis Files/ut/OUTPUT.GFF")
-
     def build(self):
         uti = GFF()
 

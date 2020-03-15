@@ -150,6 +150,7 @@ class AbstractTreeEditor(QWidget):
     def get_node_localized_string(self, category):
         localized_string = LocalizedString(0, {})
         localized_string.string_id = self.get_node_data(category, "TLK Reference")
+
         if self.get_node_data(category, "English") != "":
             localized_string.substrings[Language.English * 2] = self.get_node_data(category, "English")
         if self.get_node_data(category, "French") != "":
@@ -166,19 +167,19 @@ class AbstractTreeEditor(QWidget):
 
     def set_localized_string_nodes(self, category, localized_string):
         if localized_string is not None:
-            self.set_node_data("Name", "TLK Reference", localized_string.string_id)
+            self.set_node_data(category, "TLK Reference", localized_string.string_id)
             if Language.English * 2 in localized_string.substrings:
-                self.set_node_data("Name", "English", localized_string.substrings[Language.English * 2])
+                self.set_node_data(category, "English", localized_string.substrings[Language.English * 2])
             if Language.French * 2 in localized_string.substrings:
-                self.set_node_data("Name", "French", localized_string.substrings[Language.French * 2])
+                self.set_node_data(category, "French", localized_string.substrings[Language.French * 2])
             if Language.German * 2 in localized_string.substrings:
-                self.set_node_data("Name", "German", localized_string.substrings[Language.German * 2])
+                self.set_node_data(category, "German", localized_string.substrings[Language.German * 2])
             if Language.Italian * 2 in localized_string.substrings:
-                self.set_node_data("Name", "Italian", localized_string.substrings[Language.Italian * 2])
+                self.set_node_data(category, "Italian", localized_string.substrings[Language.Italian * 2])
             if Language.Spanish * 2 in localized_string.substrings:
-                self.set_node_data("Name", "Spanish", localized_string.substrings[Language.Spanish * 2])
+                self.set_node_data(category, "Spanish", localized_string.substrings[Language.Spanish * 2])
             if Language.Polish * 2 in localized_string.substrings:
-                self.set_node_data("Name", "Polish", localized_string.substrings[Language.Polish * 2])
+                self.set_node_data(category, "Polish", localized_string.substrings[Language.Polish * 2])
 
     def init_localized_string_nodes(self, catergory, multiline=False):
         if multiline:
