@@ -2,7 +2,7 @@ from PyQt5 import QtCore
 from PyQt5.QtGui import QBrush
 from PyQt5.QtWidgets import QWidget, QPushButton
 
-from pykotor.formats.gff import List
+from pykotor.formats.gff import List, GFF, FieldType, Struct
 from pykotor.formats.mdl import MDL
 
 from installation import Installation
@@ -95,7 +95,7 @@ class ItemEditor(AbstractTreeEditor):
         self.set_node_data("Advanced", "Texture Variation", uti.find_field_data("TextureVar", default=0))
 
         self.set_localized_string_nodes("Name", uti.find_field_data("LocalizedName"))
-        self.set_localized_string_nodes("Description", uti.find_field_data("Description"))
+        self.set_localized_string_nodes("Description", uti.find_field_data("DescIdentified"))
 
         for i in range(len(uti.find_field_data("PropertiesList", default=List([])).structs)):
             item_property = ItemProperty()
@@ -109,4 +109,51 @@ class ItemEditor(AbstractTreeEditor):
             item_property.param2_value = uti.find_field_data("PropertiesList", i, "Param2Value", default=-1)
             item_property.param2_table = uti.find_field_data("PropertiesList", i, "Param2", default=-1)
             self.item_properties.append(item_property)
+
+        self.build().to_path("A:/KM/Analysis Files/ut/OUTPUT.GFF")
+
+    def build(self):
+        uti = GFF()
+
+        uti.root.add_field(FieldType.String, "Tag", self.get_node_data("Basic", "Script Tag"))
+        uti.root.add_field(FieldType.ResRef, "TemplateResRef", self.get_node_data("Basic", "Template"))
+        uti.root.add_field(FieldType.Int32, "BaseItem", self.get_node_data("Basic", "Base"))
+        uti.root.add_field(FieldType.UInt32, "Cost", self.get_node_data("Basic", "Cost"))
+        uti.root.add_field(FieldType.UInt32, "AddCost", self.get_node_data("Basic", "Additional Cost"))
+        uti.root.add_field(FieldType.UInt8, "Plot", self.get_node_data("Basic", "Plot Item"))
+
+        uti.root.add_field(FieldType.LocalizedString, "LocalizedName", self.get_node_localized_string("Name"))
+        uti.root.add_field(FieldType.LocalizedString, "DescIdentified", self.get_node_localized_string("Description"))
+
+        uti.root.add_field(FieldType.UInt8, "UpgradeLevel", self.get_node_data("Advanced", "Upgrade Level"))
+        uti.root.add_field(FieldType.UInt8, "Charges", self.get_node_data("Advanced", "Charges"))
+        uti.root.add_field(FieldType.UInt16, "StackSize", self.get_node_data("Advanced", "Stack Size"))
+        uti.root.add_field(FieldType.UInt8, "ModelVariation", self.get_node_data("Advanced", "Model Variation"))
+        uti.root.add_field(FieldType.UInt8, "BodyVariation", self.get_node_data("Advanced", "Body Variation"))
+        uti.root.add_field(FieldType.UInt8, "TextureVar", self.get_node_data("Advanced", "Texture Variation"))
+
+        uti_property_list = List([])
+        for property in self.item_properties:
+            uti_property_struct = Struct(0, [])
+            uti_property_struct.add_field(FieldType.UInt8, "ChanceAppear", 100)
+            uti_property_struct.add_field(FieldType.UInt16, "PropertyName", property.type_value)
+            uti_property_struct.add_field(FieldType.UInt16, "Subtype", property.subtype_value)
+            uti_property_struct.add_field(FieldType.UInt8, "UpgradeType", property.upgrade_value)
+
+            uti_property_struct.add_field(FieldType.UInt8, "CostTable", property.cost_table)
+            uti_property_struct.add_field(FieldType.UInt16, "CostValue", property.cost_value)
+
+            uti_property_struct.add_field(FieldType.UInt8, "Param1", property.param1_table)
+            if property.param1_table == -1:
+                uti_property_struct.add_field(FieldType.UInt8, "Param1Value", 0)
+            else:
+                uti_property_struct.add_field(FieldType.UInt8, "Param1Value", property.param1_value)
+
+            if property.param2_table != -1:
+                uti_property_struct.add_field(FieldType.UInt8, "Param2", property.param2_table)
+                uti_property_struct.add_field(FieldType.UInt8, "Param2Value", property.param2_value)
+            uti_property_list.structs.append(uti_property_struct)
+        uti.root.add_field(FieldType.List, "PropertiesList", uti_property_list)
+
+        return uti
 
