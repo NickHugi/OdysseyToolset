@@ -93,7 +93,7 @@ class Ui_Form(object):
         self.tree.topLevelItem(2).child(1).setText(0, _translate("Form", "Player-Activated"))
         self.tree.topLevelItem(2).child(2).setText(0, _translate("Form", "Will Reset"))
         self.tree.topLevelItem(2).child(3).setText(0, _translate("Form", "One-Time"))
-        self.tree.topLevelItem(3).setText(0, _translate("Form", "Scripting"))
+        self.tree.topLevelItem(3).setText(0, _translate("Form", "Scripts"))
         self.tree.topLevelItem(3).child(0).setText(0, _translate("Form", "Routine"))
         self.tree.topLevelItem(3).child(1).setText(0, _translate("Form", "Entered"))
         self.tree.topLevelItem(3).child(2).setText(0, _translate("Form", "Exited"))
