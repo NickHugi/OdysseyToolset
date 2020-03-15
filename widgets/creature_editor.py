@@ -139,7 +139,7 @@ class CreatureEditor(AbstractTreeEditor):
         self.powers = dialog.get_bools()
 
     def open_inventory_dialog(self):
-        dialog = InventoryDialog(self, self.inventory, self.installation)
+        dialog = InventoryDialog(self, self.inventory, "placeable", self.installation)
         dialog.exec_()
         self.inventory = dialog.get_inventory()
 
