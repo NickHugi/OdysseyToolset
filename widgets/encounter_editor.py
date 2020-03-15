@@ -4,7 +4,9 @@ from PyQt5.QtWidgets import QWidget, QTreeWidgetItem, QPushButton, QPlainTextEdi
     QCheckBox, QComboBox
 
 from installation import Installation
+from pykotor.formats.gff import List
 from ui import encounter_editor
+from widgets.creatures_dialog import CreaturesDialog, EncounteredCreature
 from widgets.tree_editor import AbstractTreeEditor
 
 
@@ -16,6 +18,8 @@ class EncounterEditor(AbstractTreeEditor):
         self.ui.setupUi(self)
 
         self.installation = self.window().active_installation
+
+        self.creatures = []
 
         self.init_tree()
 
@@ -51,29 +55,41 @@ class EncounterEditor(AbstractTreeEditor):
         self.init_line_edit("Scripting", "Custom")
 
     def open_creatures_dialog(self):
-        # TODO
-        print("click")
+        dialog = CreaturesDialog(self, self.creatures, self.installation)
+        dialog.exec_()
+        self.creatures = dialog.get_creatures()
 
-    def load(self, utw):
-        self.set_node_data("Basic", "Script Tag", utw.find_field_data("Tag", default=""))
-        self.set_node_data("Basic", "Template", utw.find_field_data("TemplateResRef", default=""))
-        self.set_node_data("Basic", "Faction", utw.find_field_data("Faction", default=0))
-        self.set_node_data("Basic", "Difficulty", utw.find_field_data("DifficultyIndex", default=0))
-        self.set_node_data("Basic", "Min Creatures", utw.find_field_data("RecCreatures", default=0))
-        self.set_node_data("Basic", "Max Creatures", utw.find_field_data("MaxCreatures", default=0))
-        self.set_node_data("Basic", "Interval", utw.find_field_data("ResetTime", default=0))
-        self.set_node_data("Basic", "Waves", utw.find_field_data("Reset", default=0))
+    def load(self, ute):
+        self.set_node_data("Basic", "Script Tag", ute.find_field_data("Tag", default=""))
+        self.set_node_data("Basic", "Template", ute.find_field_data("TemplateResRef", default=""))
+        self.set_node_data("Basic", "Faction", ute.find_field_data("Faction", default=0))
+        self.set_node_data("Basic", "Difficulty", ute.find_field_data("DifficultyIndex", default=0))
+        self.set_node_data("Basic", "Min Creatures", ute.find_field_data("RecCreatures", default=0))
+        self.set_node_data("Basic", "Max Creatures", ute.find_field_data("MaxCreatures", default=0))
+        self.set_node_data("Basic", "Interval", ute.find_field_data("ResetTime", default=0))
+        self.set_node_data("Basic", "Waves", ute.find_field_data("Reset", default=0))
 
-        self.set_node_data("Flags", "Active", utw.find_field_data("Active", default=False))
-        self.set_node_data("Flags", "Player-Activated", utw.find_field_data("PlayerOnly", default=False))
-        self.set_node_data("Flags", "Will Reset", utw.find_field_data("Reset", default=False))
-        self.set_node_data("Flags", "One-Time", utw.find_field_data("SpawnOption", default=False))
+        self.set_node_data("Flags", "Active", ute.find_field_data("Active", default=False))
+        self.set_node_data("Flags", "Player-Activated", ute.find_field_data("PlayerOnly", default=False))
+        self.set_node_data("Flags", "Will Reset", ute.find_field_data("Reset", default=False))
+        self.set_node_data("Flags", "One-Time", ute.find_field_data("SpawnOption", default=False))
 
-        self.set_localized_string_nodes("Name", utw.find_field_data("LocalizedName"))
+        self.set_localized_string_nodes("Name", ute.find_field_data("LocalizedName"))
 
-        self.set_node_data("Scripting", "Routine", utw.find_field_data("ScriptHeartbeat", default=""))
-        self.set_node_data("Scripting", "Entered", utw.find_field_data("ScriptOnEnter", default=""))
-        self.set_node_data("Scripting", "Exited", utw.find_field_data("ScriptOnExit", default=""))
-        self.set_node_data("Scripting", "All Dead", utw.find_field_data("OnClick", default=""))
-        self.set_node_data("Scripting", "Custom", utw.find_field_data("ScriptUserDefine", default=""))
+        self.set_node_data("Scripting", "Routine", ute.find_field_data("ScriptHeartbeat", default=""))
+        self.set_node_data("Scripting", "Entered", ute.find_field_data("ScriptOnEnter", default=""))
+        self.set_node_data("Scripting", "Exited", ute.find_field_data("ScriptOnExit", default=""))
+        self.set_node_data("Scripting", "All Dead", ute.find_field_data("OnClick", default=""))
+        self.set_node_data("Scripting", "Custom", ute.find_field_data("ScriptUserDefine", default=""))
+
+        for i in range(len(ute.find_field_data("CreatureList", default=List([])).structs)):
+            creature = EncounteredCreature()
+            creature.appearance = ute.find_field_data("CreatureList", i, "Appearance", default=0)
+            creature.challenge_rating = ute.find_field_data("CreatureList", i, "CR", default=1)
+            creature.guaranteed_count = ute.find_field_data("CreatureList", i, "GuaranteedCount", default=0)
+            creature.res_ref = ute.find_field_data("CreatureList", i, "ResRef", default="")
+            creature.single_spawn = bool(ute.find_field_data("CreatureList", i, "SingleSpawn", default=0))
+            self.creatures.append(creature)
+
+        #self.build().to_path("A:/KM/Analysis Files/ut/OUTPUT.GFF")
 
