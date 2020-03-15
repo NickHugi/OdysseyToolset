@@ -1,11 +1,14 @@
 from PyQt5 import QtCore
 from PyQt5.QtGui import QBrush
 from PyQt5.QtWidgets import QWidget, QPushButton
+
+from pykotor.formats.gff import List
 from pykotor.formats.mdl import MDL
 
 from installation import Installation
 from pykotor.formats.twoda import TwoDA
 from ui import item_editor
+from widgets.item_property_dialog import ItemPropertyDialog, ItemProperty
 from widgets.model_renderer import ModelRenderer, Object
 from widgets.tree_editor import AbstractTreeEditor
 
@@ -18,6 +21,8 @@ class ItemEditor(AbstractTreeEditor):
         self.ui.setupUi(self)
 
         self.installation = self.window().active_installation
+
+        self.item_properties = []
 
         if self.installation is not None:
             self.model_renderer = ModelRenderer(self)
@@ -57,8 +62,9 @@ class ItemEditor(AbstractTreeEditor):
             self.get_node_widget("Basic", "Base").currentIndexChanged.connect(self.base_item_changed)
 
     def open_properties_dialog(self):
-        # TODO
-        print("open properties dialog")
+        dialog = ItemPropertyDialog(self, self.item_properties, self.installation)
+        dialog.exec_()
+        self.item_properties = dialog.get_item_properties()
 
     def base_item_changed(self, index):
         try:
@@ -73,21 +79,34 @@ class ItemEditor(AbstractTreeEditor):
         except Exception as e:
             print("Failed to load door appearance model:", e)
 
-    def load(self, utw):
-        self.set_node_data("Basic", "Script Tag", utw.find_field_data("Tag", default=""))
-        self.set_node_data("Basic", "Template", utw.find_field_data("TemplateResRef", default=""))
-        self.set_node_data("Basic", "Base", utw.find_field_data("BaseItem", default=0))
-        self.set_node_data("Basic", "Cost", utw.find_field_data("Cost", default=0))
-        self.set_node_data("Basic", "Additional Cost", utw.find_field_data("AddCost", default=0))
-        self.set_node_data("Basic", "Plot Item", utw.find_field_data("Plot", default=False))
+    def load(self, uti):
+        self.set_node_data("Basic", "Script Tag", uti.find_field_data("Tag", default=""))
+        self.set_node_data("Basic", "Template", uti.find_field_data("TemplateResRef", default=""))
+        self.set_node_data("Basic", "Base", uti.find_field_data("BaseItem", default=0))
+        self.set_node_data("Basic", "Cost", uti.find_field_data("Cost", default=0))
+        self.set_node_data("Basic", "Additional Cost", uti.find_field_data("AddCost", default=0))
+        self.set_node_data("Basic", "Plot Item", uti.find_field_data("Plot", default=False))
 
-        self.set_node_data("Advanced", "Upgrade Level", utw.find_field_data("", default=0))
-        self.set_node_data("Advanced", "Charges", utw.find_field_data("Charges", default=0))
-        self.set_node_data("Advanced", "Stack Size", utw.find_field_data("StackSize", default=0))
-        self.set_node_data("Advanced", "Model Variation", utw.find_field_data("ModelVariation", default=0))
-        self.set_node_data("Advanced", "Body Variation", utw.find_field_data("BodyVariation", default=0))
-        self.set_node_data("Advanced", "Texture Variation", utw.find_field_data("TextureVar", default=0))
+        self.set_node_data("Advanced", "Upgrade Level", uti.find_field_data("", default=0))
+        self.set_node_data("Advanced", "Charges", uti.find_field_data("Charges", default=0))
+        self.set_node_data("Advanced", "Stack Size", uti.find_field_data("StackSize", default=0))
+        self.set_node_data("Advanced", "Model Variation", uti.find_field_data("ModelVariation", default=0))
+        self.set_node_data("Advanced", "Body Variation", uti.find_field_data("BodyVariation", default=0))
+        self.set_node_data("Advanced", "Texture Variation", uti.find_field_data("TextureVar", default=0))
 
-        self.set_localized_string_nodes("Name", utw.find_field_data("LocalizedName"))
-        self.set_localized_string_nodes("Description", utw.find_field_data("Description"))
+        self.set_localized_string_nodes("Name", uti.find_field_data("LocalizedName"))
+        self.set_localized_string_nodes("Description", uti.find_field_data("Description"))
+
+        for i in range(len(uti.find_field_data("PropertiesList", default=List([])).structs)):
+            item_property = ItemProperty()
+            item_property.type_value = uti.find_field_data("PropertiesList", i, "PropertyName", default=-1)
+            item_property.subtype_value = uti.find_field_data("PropertiesList", i, "Subtype", default=-1)
+            item_property.upgrade_value = uti.find_field_data("PropertiesList", i, "UpgradeType", default=-1)
+            item_property.cost_value = uti.find_field_data("PropertiesList", i, "CostValue", default=-1)
+            item_property.cost_table = uti.find_field_data("PropertiesList", i, "CostTable", default=-1)
+            item_property.param1_value = uti.find_field_data("PropertiesList", i, "Param1Value", default=-1)
+            item_property.param1_table = uti.find_field_data("PropertiesList", i, "Param1", default=-1)
+            item_property.param2_value = uti.find_field_data("PropertiesList", i, "Param2Value", default=-1)
+            item_property.param2_table = uti.find_field_data("PropertiesList", i, "Param2", default=-1)
+            self.item_properties.append(item_property)
 
