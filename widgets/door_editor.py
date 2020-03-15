@@ -3,6 +3,7 @@ from PyQt5.QtGui import QBrush
 from PyQt5.QtWidgets import QWidget
 
 from installation import Installation
+from pykotor.formats.gff import FieldType, GFF
 from pykotor.formats.mdl import MDL
 from pykotor.formats.twoda import TwoDA
 from ui import door_editor
@@ -151,3 +152,60 @@ class DoorEditor(AbstractTreeEditor):
         self.set_node_data("Lock", "Unlock DC", utw.find_field_data("OpenLockDC", default=0))
 
         self.set_localized_string_nodes("Name", utw.find_field_data("LocName"))
+
+    def build(self):
+        utd = GFF()
+
+        utd.root.add_field(FieldType.String, "Tag",             self.get_node_data("Basic", "Script Tag"))
+        utd.root.add_field(FieldType.ResRef, "TemplateResRef",  self.get_node_data("Basic", "Template"))
+        utd.root.add_field(FieldType.UInt16, "Appearance",      self.get_node_data("Basic", "Appearance"))
+        utd.root.add_field(FieldType.ResRef, "Conversation",    self.get_node_data("Basic", "Dialog"))
+
+        utd.root.add_field(FieldType.LocalizedString, "LocName", self.get_node_localized_string("Name"))
+
+        utd.root.add_field(FieldType.UInt8, "AnimationState",   self.get_node_data("Advanced", "State"))
+        utd.root.add_field(FieldType.UInt32, "Faction",         self.get_node_data("Advanced", "Faction"))
+
+        utd.root.add_field(FieldType.UInt8, "Fort",             self.get_node_data("Other", "Fortitude"))
+        utd.root.add_field(FieldType.UInt8, "Ref",              self.get_node_data("Other", "Reflex"))
+        utd.root.add_field(FieldType.UInt8, "Will",             self.get_node_data("Other", "Will"))
+        utd.root.add_field(FieldType.UInt8, "Hardness",         self.get_node_data("Other", "Hardness"))
+        utd.root.add_field(FieldType.Int16, "HP",               self.get_node_data("Other", "Health"))
+
+        utd.root.add_field(FieldType.UInt8, "Plot",             self.get_node_data("Flags", "Plot"))
+        utd.root.add_field(FieldType.UInt8, "Interruptable",    self.get_node_data("Flags", "Interruptable"))
+        utd.root.add_field(FieldType.UInt8, "Min1HP",           self.get_node_data("Flags", "Invincible"))
+        utd.root.add_field(FieldType.UInt8, "Static",           self.get_node_data("Flags", "Static"))
+
+        utd.root.add_field(FieldType.ResRef, "OnHeartbeat",     self.get_node_data("Scripts", "Routine"))
+        utd.root.add_field(FieldType.ResRef, "OnClick",         self.get_node_data("Scripts", "Clicked"))
+        utd.root.add_field(FieldType.ResRef, "OnOpen",          self.get_node_data("Scripts", "Opened"))
+        utd.root.add_field(FieldType.ResRef, "OnClosed",        self.get_node_data("Scripts", "Closed"))
+        utd.root.add_field(FieldType.ResRef, "OnUnlock",        self.get_node_data("Scripts", "Unlocked"))
+        utd.root.add_field(FieldType.ResRef, "OnLock",          self.get_node_data("Scripts", "Locked"))
+        utd.root.add_field(FieldType.ResRef, "OnFailToOpen",    self.get_node_data("Scripts", "Failed"))
+        utd.root.add_field(FieldType.ResRef, "OnMeleeAttacked", self.get_node_data("Scripts", "Attacked Physically"))
+        utd.root.add_field(FieldType.ResRef, "OnSpellCastAt",   self.get_node_data("Scripts", "Attacked Ability"))
+        utd.root.add_field(FieldType.ResRef, "OnDamaged",       self.get_node_data("Scripts", "Damaged"))
+        utd.root.add_field(FieldType.ResRef, "OnDeath",         self.get_node_data("Scripts", "Death"))
+        utd.root.add_field(FieldType.ResRef, "OnDisarm",        self.get_node_data("Scripts", "Disarmed"))
+        utd.root.add_field(FieldType.ResRef, "OnTriggered",     self.get_node_data("Scripts", "Triggered"))
+        utd.root.add_field(FieldType.ResRef, "OnCustom",        self.get_node_data("Scripts", "Custom"))
+
+        utd.root.add_field(FieldType.UInt8, "TrapFlag",         self.get_node_data("Trap", "Is Trap"))
+        utd.root.add_field(FieldType.UInt8, "TrapOneShot",      self.get_node_data("Trap", "One-Shot"))
+        utd.root.add_field(FieldType.UInt8, "TrapDetectable",   self.get_node_data("Trap", "Detectable"))
+        utd.root.add_field(FieldType.UInt8, "TrapDisarmable",   self.get_node_data("Trap", "Disarmable"))
+        utd.root.add_field(FieldType.UInt8, "TrapDetectDC",     self.get_node_data("Trap", "Detection DC"))
+        utd.root.add_field(FieldType.UInt8, "DisarmDC",         self.get_node_data("Trap", "Disarm DC"))
+        utd.root.add_field(FieldType.UInt8, "TrapType",         self.get_node_data("Trap", "Trap Type"))
+
+        utd.root.add_field(FieldType.UInt8, "Locked",           self.get_node_data("Lock", "Is Locked"))
+        utd.root.add_field(FieldType.UInt8, "Lockable",         self.get_node_data("Lock", "Lockable"))
+        utd.root.add_field(FieldType.UInt8, "KeyRequired",      self.get_node_data("Lock", "Requires Key"))
+        utd.root.add_field(FieldType.UInt8, "AutoRemoveKey",    self.get_node_data("Lock", "Remove Key"))
+        utd.root.add_field(FieldType.String, "KeyName",         self.get_node_data("Lock", "Key Tag"))
+        utd.root.add_field(FieldType.UInt8, "OpenLockDC",       self.get_node_data("Lock", "Unlock DC"))
+        utd.root.add_field(FieldType.UInt8, "CloseLockDC",      self.get_node_data("Lock", "Lock DC"))
+
+        return utd
