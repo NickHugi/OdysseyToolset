@@ -71,6 +71,7 @@ class Toolset(QMainWindow):
         self.init_tree_model(self.ui.project_tree, self.project_model, self.project_proxy)
 
         self.ui.file_tabs.setTabsClosable(True)
+        self.load_file_new_icons("x")
 
         self.ui.core_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.modules_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -148,6 +149,11 @@ class Toolset(QMainWindow):
         self.installations[name] = Installation(path, name)
         self.active_installation = self.installations[name]
         self.build_trees()
+
+        if self.active_installation.is_tsl():
+            self.load_file_new_icons("2")
+        else:
+            self.load_file_new_icons("1")
 
     def clear_trees(self):
         self.ui.filter_edit.setText("")
@@ -309,6 +315,19 @@ class Toolset(QMainWindow):
 
         return widget
 
+    def load_file_new_icons(self, version):
+        self.ui.action_new_creature.setIcon(QIcon(":/k"+version+"_icons/creature"))
+        self.ui.action_new_dialog.setIcon(QIcon(":/k"+version+"_icons/dialog"))
+        self.ui.action_new_door.setIcon(QIcon(":/k"+version+"_icons/door"))
+        self.ui.action_new_encounter.setIcon(QIcon(":/k"+version+"_icons/encounter"))
+        self.ui.action_new_item.setIcon(QIcon(":/k"+version+"_icons/item"))
+        self.ui.action_new_merchant.setIcon(QIcon(":/k"+version+"_icons/merchant"))
+        self.ui.action_new_placeable.setIcon(QIcon(":/k"+version+"_icons/placeable"))
+        self.ui.action_new_sound.setIcon(QIcon(":/k"+version+"_icons/sound"))
+        self.ui.action_new_trigger.setIcon(QIcon(":/k"+version+"_icons/trigger"))
+        self.ui.action_new_waypoint.setIcon(QIcon(":/k"+version+"_icons/waypoint"))
+        self.ui.action_new_script.setIcon(QIcon(":/k"+version+"_icons/script"))
+
     # Events
     def installation_combo_changed(self, index):
         self.clear_trees()
@@ -316,6 +335,7 @@ class Toolset(QMainWindow):
         self.ui.filter_edit.setEnabled(False)
         self.ui.modules_combo.clear()
         self.active_installation = None
+        self.load_file_new_icons("x")
 
         if index > 0:
             installation_name = self.ui.installation_combo.itemText(index)
