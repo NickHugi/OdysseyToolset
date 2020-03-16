@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'trigger_editor.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -89,7 +89,7 @@ class Ui_Form(object):
         self.tree.topLevelItem(1).child(6).setText(0, _translate("Form", "Spanish"))
         self.tree.topLevelItem(1).child(7).setText(0, _translate("Form", "Polish"))
         self.tree.topLevelItem(1).child(8).setText(0, _translate("Form", "Korean"))
-        self.tree.topLevelItem(2).setText(0, _translate("Form", "Scripting"))
+        self.tree.topLevelItem(2).setText(0, _translate("Form", "Scripts"))
         self.tree.topLevelItem(2).child(0).setText(0, _translate("Form", "Routine"))
         self.tree.topLevelItem(2).child(1).setText(0, _translate("Form", "Entered"))
         self.tree.topLevelItem(2).child(2).setText(0, _translate("Form", "Exited"))
