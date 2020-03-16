@@ -43,8 +43,7 @@ class WaypointEditor(AbstractTreeEditor):
         self.set_localized_string_nodes("Map Note", utw.find_field_data("MapNote"))
         self.set_localized_string_nodes("Description", utw.find_field_data("Description"))
 
-    def save(self, path):
-        path = QFileDialog.getSaveFileName(parent=self)[0]
+    def build(self):
         utw = GFF()
         utw.root.add_field(FieldType.String, "Tag", self.get_node_data("Basic", "Script Tag"))
         utw.root.add_field(FieldType.ResRef, "TemplateResRef", self.get_node_data("Basic", "Template"))
@@ -53,4 +52,4 @@ class WaypointEditor(AbstractTreeEditor):
         utw.root.add_field(FieldType.LocalizedString, "LocalizedName", self.get_node_localized_string("Name"))
         utw.root.add_field(FieldType.LocalizedString, "Description", self.get_node_localized_string("Description"))
         utw.root.add_field(FieldType.LocalizedString, "MapNote", self.get_node_localized_string("Map Note"))
-        utw.to_path(path)
+        return utw
