@@ -10,31 +10,29 @@ from pykotor.formats.mdl import MDL
 
 from installation import Installation
 from pykotor.formats.twoda import TwoDA
+from pykotor.globals import resource_types
 from ui import creature_editor
 from widgets.ability_dialog import AbilityDialog
+from widgets.editor_widget import EditorWidget
 from widgets.inventory_dialog import InventoryDialog, Inventory, InventoryItem
 from widgets.model_renderer import Object, ModelRenderer
 from widgets.tree_editor import AbstractTreeEditor
 
 
-class CreatureEditor(AbstractTreeEditor):
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-
-        self.ui = creature_editor.Ui_Form()
-        self.ui.setupUi(self)
-
-        self.installation = self.window().active_installation
-
+class CreatureEditor(AbstractTreeEditor, EditorWidget):
+    def __init__(self, parent, utw=GFF(), file_path="", res_ref="untitled"):
         self.inventory = Inventory()
         self.powers = {}
         self.feats = {}
 
+        EditorWidget.__init__(self, parent, creature_editor, "creature")
+        self.load(utw)
+        self.setup(file_path, res_ref, resource_types['utc'])
+        self.init_tree()
+
         if self.installation is not None:
             self.model_renderer = ModelRenderer(self)
             self.ui.splitter.addWidget(self.model_renderer)
-
-        self.init_tree()
 
     def init_tree(self):
         for i in range(self.ui.tree.topLevelItemCount()):

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'texture_viewer.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -20,6 +20,7 @@ class Ui_Form(object):
         self.splitter.setOrientation(QtCore.Qt.Vertical)
         self.splitter.setObjectName("splitter")
         self.texture_label = QtWidgets.QLabel(self.splitter)
+        self.texture_label.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.texture_label.setAlignment(QtCore.Qt.AlignCenter)
         self.texture_label.setObjectName("texture_label")
         self.txi_edit = QtWidgets.QPlainTextEdit(self.splitter)

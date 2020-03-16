@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'sound_editor.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -36,8 +36,6 @@ class Ui_Form(object):
         item_1 = QtWidgets.QTreeWidgetItem(item_0)
         item_1 = QtWidgets.QTreeWidgetItem(item_0)
         item_1.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
-        item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        item_1.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsDropEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
         item_1 = QtWidgets.QTreeWidgetItem(item_0)
         item_1.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsDropEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
         item_1 = QtWidgets.QTreeWidgetItem(item_0)
@@ -85,7 +83,7 @@ class Ui_Form(object):
         self.tree.topLevelItem(0).child(7).setText(0, _translate("Form", "Pitch Variation"))
         self.tree.topLevelItem(0).child(8).setText(0, _translate("Form", "Min Distance"))
         self.tree.topLevelItem(0).child(9).setText(0, _translate("Form", "Max Distance"))
-        self.tree.topLevelItem(1).setText(0, _translate("Form", "Naming"))
+        self.tree.topLevelItem(1).setText(0, _translate("Form", "Name"))
         self.tree.topLevelItem(1).child(0).setText(0, _translate("Form", "TLK Reference"))
         self.tree.topLevelItem(1).child(1).setText(0, _translate("Form", "TLK Text"))
         self.tree.topLevelItem(1).child(2).setText(0, _translate("Form", "English"))
@@ -94,7 +92,6 @@ class Ui_Form(object):
         self.tree.topLevelItem(1).child(5).setText(0, _translate("Form", "Italian"))
         self.tree.topLevelItem(1).child(6).setText(0, _translate("Form", "Spanish"))
         self.tree.topLevelItem(1).child(7).setText(0, _translate("Form", "Polish"))
-        self.tree.topLevelItem(1).child(8).setText(0, _translate("Form", "Korean"))
         self.tree.topLevelItem(2).setText(0, _translate("Form", "Advanced"))
         self.tree.topLevelItem(2).child(0).setText(0, _translate("Form", "Priority"))
         self.tree.topLevelItem(2).child(1).setText(0, _translate("Form", "X Variation"))

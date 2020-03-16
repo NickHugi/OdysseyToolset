@@ -6,25 +6,23 @@ from installation import Installation
 from pykotor.formats.gff import FieldType, GFF
 from pykotor.formats.mdl import MDL
 from pykotor.formats.twoda import TwoDA
+from pykotor.globals import resource_types
 from ui import door_editor
+from widgets.editor_widget import EditorWidget
 from widgets.model_renderer import ModelRenderer, Object
 from widgets.tree_editor import AbstractTreeEditor
 
 
-class DoorEditor(AbstractTreeEditor):
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-
-        self.ui = door_editor.Ui_Form()
-        self.ui.setupUi(self)
-
-        self.installation = self.window().active_installation
+class DoorEditor(AbstractTreeEditor, EditorWidget):
+    def __init__(self, parent, utw=GFF(), file_path="", res_ref="untitled"):
+        EditorWidget.__init__(self, parent, door_editor, "door")
+        self.load(utw)
+        self.setup(file_path, res_ref, resource_types['utd'])
+        self.init_tree()
 
         if self.installation is not None:
             self.model_renderer = ModelRenderer(self)
             self.ui.splitter.addWidget(self.model_renderer)
-
-        self.init_tree()
 
     def init_tree(self):
         for i in range(self.ui.tree.topLevelItemCount()):

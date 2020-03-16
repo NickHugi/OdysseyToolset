@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'toolset.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -91,12 +91,16 @@ class Ui_MainWindow(object):
         self.project_tab.setObjectName("project_tab")
         self.gridLayout_6 = QtWidgets.QGridLayout(self.project_tab)
         self.gridLayout_6.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_6.setSpacing(0)
         self.gridLayout_6.setObjectName("gridLayout_6")
         self.project_tree = QtWidgets.QTreeView(self.project_tab)
         self.project_tree.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.project_tree.setAlternatingRowColors(True)
         self.project_tree.setObjectName("project_tree")
-        self.gridLayout_6.addWidget(self.project_tree, 0, 0, 1, 1)
+        self.gridLayout_6.addWidget(self.project_tree, 1, 0, 1, 1)
+        self.project_combo = QtWidgets.QComboBox(self.project_tab)
+        self.project_combo.setObjectName("project_combo")
+        self.gridLayout_6.addWidget(self.project_combo, 0, 0, 1, 1)
         self.tree_tabs.addTab(self.project_tab, "")
         self.verticalLayout.addWidget(self.tree_tabs)
         self.gridLayout = QtWidgets.QGridLayout()
@@ -205,7 +209,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuTools.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tree_tabs.setCurrentIndex(0)
+        self.tree_tabs.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

@@ -5,22 +5,20 @@ from PyQt5.QtWidgets import QWidget, QTreeWidgetItem, QPushButton, QPlainTextEdi
 
 from installation import Installation
 from pykotor.formats.gff import List, GFF, FieldType, Struct
+from pykotor.globals import resource_types
 from ui import encounter_editor
 from widgets.creatures_dialog import CreaturesDialog, EncounteredCreature
+from widgets.editor_widget import EditorWidget
 from widgets.tree_editor import AbstractTreeEditor
 
 
-class EncounterEditor(AbstractTreeEditor):
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-
-        self.ui = encounter_editor.Ui_Form()
-        self.ui.setupUi(self)
-
-        self.installation = self.window().active_installation
-
+class EncounterEditor(AbstractTreeEditor, EditorWidget):
+    def __init__(self, parent, utw=GFF(), file_path="", res_ref="untitled"):
         self.creatures = []
 
+        EditorWidget.__init__(self, parent, encounter_editor, "encounter")
+        self.load(utw)
+        self.setup(file_path, res_ref, resource_types['ute'])
         self.init_tree()
 
     def init_tree(self):

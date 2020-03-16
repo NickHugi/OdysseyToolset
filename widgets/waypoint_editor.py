@@ -1,23 +1,19 @@
 from PyQt5 import QtCore
 from PyQt5.QtGui import QBrush
 from PyQt5.QtWidgets import QWidget, QComboBox, QCheckBox, QSpinBox, QLineEdit, QPushButton, QFileDialog
-from pykotor.globals import Gender, Language
+from pykotor.globals import Gender, Language, resource_types
 
 from pykotor.formats.gff import GFF, FieldType
 from ui import waypoint_editor
+from widgets.editor_widget import EditorWidget
 from widgets.tree_editor import AbstractTreeEditor
 
 
-class WaypointEditor(AbstractTreeEditor):
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-
-        self.ui = waypoint_editor.Ui_Form()
-        self.ui.setupUi(self)
-
-        self.installation = self.window().active_installation
-
-        search_flags = QtCore.Qt.MatchExactly | QtCore.Qt.MatchRecursive
+class WaypointEditor(AbstractTreeEditor, EditorWidget):
+    def __init__(self, parent, utw=GFF(), file_path="", res_ref="untitled"):
+        EditorWidget.__init__(self, parent, waypoint_editor, "waypoint")
+        self.load(utw)
+        self.setup(file_path, res_ref, resource_types['utw'])
         self.init_tree()
 
     def init_tree(self):

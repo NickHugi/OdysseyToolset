@@ -7,28 +7,26 @@ from pykotor.formats.mdl import MDL
 
 from installation import Installation
 from pykotor.formats.twoda import TwoDA
+from pykotor.globals import resource_types
 from ui import item_editor
+from widgets.editor_widget import EditorWidget
 from widgets.item_property_dialog import ItemPropertyDialog, ItemProperty
 from widgets.model_renderer import ModelRenderer, Object
 from widgets.tree_editor import AbstractTreeEditor
 
 
-class ItemEditor(AbstractTreeEditor):
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-
-        self.ui = item_editor.Ui_Form()
-        self.ui.setupUi(self)
-
-        self.installation = self.window().active_installation
-
+class ItemEditor(AbstractTreeEditor, EditorWidget):
+    def __init__(self, parent, utw=GFF(), file_path="", res_ref="untitled"):
         self.item_properties = []
+
+        EditorWidget.__init__(self, parent, item_editor, "item")
+        self.load(utw)
+        self.setup(file_path, res_ref, resource_types['uti'])
+        self.init_tree()
 
         if self.installation is not None:
             self.model_renderer = ModelRenderer(self)
             self.ui.splitter.addWidget(self.model_renderer)
-
-        self.init_tree()
 
     def init_tree(self):
         for i in range(self.ui.tree.topLevelItemCount()):

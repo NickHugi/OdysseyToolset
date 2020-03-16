@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'door_editor.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.2
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(739, 568)
+        Form.resize(739, 566)
         self.gridLayout = QtWidgets.QGridLayout(Form)
         self.gridLayout.setObjectName("gridLayout")
         self.splitter = QtWidgets.QSplitter(Form)
@@ -130,7 +130,7 @@ class Ui_Form(object):
         self.tree.topLevelItem(4).child(3).setText(0, _translate("Form", "Static"))
         self.tree.topLevelItem(5).setText(0, _translate("Form", "Scripts"))
         self.tree.topLevelItem(5).child(0).setText(0, _translate("Form", "Routine"))
-        self.tree.topLevelItem(5).child(1).setText(0, _translate("Form", "Used"))
+        self.tree.topLevelItem(5).child(1).setText(0, _translate("Form", "Clicked"))
         self.tree.topLevelItem(5).child(2).setText(0, _translate("Form", "Opened"))
         self.tree.topLevelItem(5).child(3).setText(0, _translate("Form", "Closed"))
         self.tree.topLevelItem(5).child(4).setText(0, _translate("Form", "Unlocked"))

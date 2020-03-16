@@ -2,7 +2,7 @@ import os
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSettings, QSortFilterProxyModel
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap, QImage
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap, QImage, QIcon
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTreeWidgetItem, QMenu, QAction
 
 from pykotor.formats.gff import GFF
@@ -15,6 +15,7 @@ from pykotor.formats.tpc import TPC
 
 from pykotor.globals import resource_types
 
+import resources
 from installation import Installation
 from ui import toolset
 from widgets.creature_editor import CreatureEditor
@@ -42,6 +43,9 @@ class Toolset(QMainWindow):
         self.ui.setupUi(self)
         self.show()
 
+        self.ui.file_tabs.setStyleSheet("QTabBar::close-button { image: url(\":/icons/close\") }"+
+                                        "QTabBar::close-button:hover { image: url(\":/icons/close_hover\") }")
+
         self.ui.tree_tabs.setEnabled(False)
         self.ui.filter_edit.setEnabled(False)
         self.ui.tree_tabs.setTabEnabled(3, False)
@@ -65,6 +69,8 @@ class Toolset(QMainWindow):
         self.init_tree_model(self.ui.modules_tree, self.modules_model, self.modules_proxy)
         self.init_tree_model(self.ui.override_tree, self.override_model, self.override_proxy)
         self.init_tree_model(self.ui.project_tree, self.project_model, self.project_proxy)
+
+        self.ui.file_tabs.setTabsClosable(True)
 
         self.ui.core_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.modules_tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -107,6 +113,15 @@ class Toolset(QMainWindow):
         self.ui.modules_tree.customContextMenuRequested.connect(self.show_tree_context_menu)
         self.ui.override_tree.customContextMenuRequested.connect(self.show_tree_context_menu)
         self.ui.project_tree.customContextMenuRequested.connect(self.show_tree_context_menu)
+        self.ui.action_save.triggered.connect(self.save_triggered)
+        self.ui.action_save_as.triggered.connect(self.save_as_triggered)
+        self.ui.action_save_to_module.triggered.connect(self.save_to_module_triggered)
+        self.ui.action_save_to_override.triggered.connect(self.save_to_override_triggered)
+        self.ui.action_settings.triggered.connect(self.open_settings)
+        self.ui.file_tabs.tabCloseRequested.connect(self.close_tab_request)
+
+    def close_tab_request(self):
+        self.ui.file_tabs.removeTab(self.ui.file_tabs.currentIndex())
 
     def refresh_installation_list(self):
         self.ui.installation_combo.clear()
@@ -130,7 +145,7 @@ class Toolset(QMainWindow):
             path = installations[name] = dialog.getExistingDirectory(self, "Select KotOR Path")
             self.settings.setValue('installations', installations)
 
-        self.installations[name] = Installation(path)
+        self.installations[name] = Installation(path, name)
         self.active_installation = self.installations[name]
         self.build_trees()
 
@@ -218,6 +233,7 @@ class Toolset(QMainWindow):
 
             if res_ref_item.data() == "chitin.key":
                 res_data = self.active_installation.chitin.fetch_resource(res_ref, res_type)
+                file_path = self.active_installation.root_path + "/chitin.key"
             elif ".erf" in res_ref_item.data():
                 res_data = ERF.fetch_resource(res_ref_item.data(), res_ref, res_type)
                 file_path = res_ref_item.data()
@@ -269,8 +285,19 @@ class Toolset(QMainWindow):
     def open_resource(self, res_ref, res_type, res_data, file_path=""):
         widget = None
 
+        if res_type == "utc": widget = CreatureEditor(self, GFF.from_data(res_data), file_path, res_ref)
+        if res_type == "utd": widget = DoorEditor(self, GFF.from_data(res_data), file_path, res_ref)
+        if res_type == "utp": widget = PlaceableEditor(self, GFF.from_data(res_data), file_path, res_ref)
+        if res_type == "uti": widget = ItemEditor(self, GFF.from_data(res_data), file_path, res_ref)
+        if res_type == "utw":  widget = WaypointEditor(self, GFF.from_data(res_data), file_path, res_ref)
+        if res_type == "ute": widget = EncounterEditor(self, GFF.from_data(res_data), file_path, res_ref)
+        if res_type == "utm": widget = MerchantEditor(self, GFF.from_data(res_data), file_path, res_ref)
+        if res_type == "utt": widget = TriggerEditor(self, GFF.from_data(res_data), file_path, res_ref)
+        if res_type == "uts": widget = SoundEditor(self, GFF.from_data(res_data), file_path, res_ref)
+
         if res_type == "tpc" or res_type == "tga" or res_type == "bmp" or res_type == "png" or res_type == "jpg":
             widget = TextureViewer.open_resource(self, res_ref, res_type, res_data)
+            self.ui.file_tabs.addTab(widget, res_ref + "." + res_type.extension)
 
         if res_type == "mdl":
             data_ext = Installation.find_resource(res_ref, "mdx", self.active_installation, os.path.dirname(file_path))
@@ -278,49 +305,9 @@ class Toolset(QMainWindow):
             widget = ModelRenderer(self)
             widget.model_buffer[res_ref] = mdl
             widget.objects.append(Object(res_ref))
-
-        if res_type == "utw":
-            gff = GFF.from_data(res_data)
-            widget = WaypointEditor(self)
-            widget.load(gff)
-
-        if res_type == "utt":
-            gff = GFF.from_data(res_data)
-            widget = TriggerEditor(self)
-            widget.load(gff)
-
-        if res_type == "ute":
-            gff = GFF.from_data(res_data)
-            widget = EncounterEditor(self)
-            widget.load(gff)
-
-        if res_type == "utm":
-            gff = GFF.from_data(res_data)
-            widget = MerchantEditor(self)
-            widget.load(gff)
-
-        if res_type == "uts":
-            gff = GFF.from_data(res_data)
-            widget = SoundEditor(self)
-            widget.load(gff)
-
-        if res_type == "uti":
-            gff = GFF.from_data(res_data)
-            widget = ItemEditor(self)
-            widget.load(gff)
-
-        if res_type == "utd":
-            gff = GFF.from_data(res_data)
-            widget = DoorEditor(self)
-            widget.load(gff)
-
-        if res_type == "utc":
-            gff = GFF.from_data(res_data)
-            widget = CreatureEditor(self)
-            widget.load(gff)
-
-        if widget is not None:
             self.ui.file_tabs.addTab(widget, res_ref + "." + res_type.extension)
+
+        return widget
 
     # Events
     def installation_combo_changed(self, index):
@@ -353,7 +340,7 @@ class Toolset(QMainWindow):
 
     def open_button_clicked(self):
         resource = self.get_selected_data()[0]
-        self.open_resource(resource["res_ref"], resource["res_type"], resource["res_data"])
+        self.open_resource(resource["res_ref"], resource["res_type"], resource["res_data"], resource["file_path"])
 
     def extract_button_clicked(self):
         data = self.get_selected_data()[0]["res_data"]
@@ -402,6 +389,7 @@ class Toolset(QMainWindow):
 
         menu.exec_(tree.viewport().mapToGlobal(position))
 
+    # region -> Tools
     def tools_erf_action_triggered(self):
         window = ERFEditor()
         window.show()
@@ -416,46 +404,62 @@ class Toolset(QMainWindow):
         window = TwoDAEditor()
         window.show()
         self.subwindows.append(window)
+    # endregion
 
+    # region -> File
+    def refresh_file_options(self):
+        widget = self.ui.file_tabs.currentWidget()
+        self.ui.action_save_as.setEnabled(False)
+
+        if widget is not None:
+            self.ui.action_save_as.setEnabled(True)
+
+    def save_triggered(self):
+        pass
+
+    def save_as_triggered(self):
+        pass
+
+    def save_to_module_triggered(self):
+        pass
+
+    def save_to_override_triggered(self):
+        pass
+
+    def open_settings(self):
+        self.refresh_file_options()
+    # endregion
+
+    # region -> File -> New
     def new_creature_action_triggered(self):
         widget = CreatureEditor(self)
-        self.ui.file_tabs.addTab(widget, "new.utc")
 
     def new_placeable_action_triggered(self):
         widget = PlaceableEditor(self)
-        self.ui.file_tabs.addTab(widget, "new.utp")
 
     def new_door_action_triggered(self):
         widget = DoorEditor(self)
-        self.ui.file_tabs.addTab(widget, "new.utd")
 
     def new_item_action_triggered(self):
         widget = ItemEditor(self)
-        self.ui.file_tabs.addTab(widget, "new.uti")
 
     def new_dialog_action_triggered(self):
         widget = DialogEditor(self)
-        self.ui.file_tabs.addTab(widget, "new.dlg")
 
     def new_merchant_action_triggered(self):
         widget = MerchantEditor(self)
-        self.ui.file_tabs.addTab(widget, "new.utm")
 
     def new_waypoint_action_triggered(self):
         widget = WaypointEditor(self)
-        self.ui.file_tabs.addTab(widget, "new.utw")
 
     def new_trigger_action_triggered(self):
         widget = TriggerEditor(self)
-        self.ui.file_tabs.addTab(widget, "new.utt")
 
     def new_encounter_action_triggered(self):
         widget = EncounterEditor(self)
-        self.ui.file_tabs.addTab(widget, "new.ute")
 
     def new_sound_action_triggered(self):
         widget = SoundEditor(self)
-        self.ui.file_tabs.addTab(widget, "new.uts")
 
     def open_action_triggered(self):
         file_path = QFileDialog.getOpenFileName(self, "Open File")[0]
@@ -469,3 +473,4 @@ class Toolset(QMainWindow):
             file.close()
 
             self.open_resource(res_ref, res_type, res_data, file_path)
+    # endregion

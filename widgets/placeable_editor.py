@@ -9,28 +9,26 @@ from pykotor.formats.mdl import MDL
 
 from installation import Installation
 from pykotor.formats.twoda import TwoDA
+from pykotor.globals import resource_types
 from ui import placeable_editor
+from widgets.editor_widget import EditorWidget
 from widgets.inventory_dialog import InventoryDialog, Inventory, InventoryItem
 from widgets.model_renderer import ModelRenderer, Object
 from widgets.tree_editor import AbstractTreeEditor
 
 
-class PlaceableEditor(AbstractTreeEditor):
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-
-        self.ui = placeable_editor.Ui_Form()
-        self.ui.setupUi(self)
-
-        self.installation = self.window().active_installation
-
+class PlaceableEditor(AbstractTreeEditor, EditorWidget):
+    def __init__(self, parent, utw=GFF(), file_path="", res_ref="untitled"):
         self.inventory = Inventory()
+
+        EditorWidget.__init__(self, parent, placeable_editor, "placeable")
+        self.load(utw)
+        self.setup(file_path, res_ref, resource_types['uti'])
+        self.init_tree()
 
         if self.installation is not None:
             self.model_renderer = ModelRenderer(self)
             self.ui.splitter.addWidget(self.model_renderer)
-
-        self.init_tree()
 
     def init_tree(self):
         for i in range(self.ui.tree.topLevelItemCount()):

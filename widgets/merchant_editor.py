@@ -3,22 +3,20 @@ from PyQt5.QtGui import QBrush
 from PyQt5.QtWidgets import QWidget, QComboBox, QCheckBox, QSpinBox, QLineEdit, QPushButton
 
 from pykotor.formats.gff import GFF, FieldType, List, Struct
+from pykotor.globals import resource_types
 from ui import merchant_editor
+from widgets.editor_widget import EditorWidget
 from widgets.inventory_dialog import InventoryDialog, Inventory, InventoryItem
 from widgets.tree_editor import AbstractTreeEditor
 
 
-class MerchantEditor(AbstractTreeEditor):
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-
-        self.ui = merchant_editor.Ui_Form()
-        self.ui.setupUi(self)
-
-        self.installation = self.window().active_installation
-
+class MerchantEditor(AbstractTreeEditor, EditorWidget):
+    def __init__(self, parent, utw=GFF(), file_path="", res_ref="untitled"):
         self.inventory = Inventory()
 
+        EditorWidget.__init__(self, parent, merchant_editor, "merchant")
+        self.load(utw)
+        self.setup(file_path, res_ref, resource_types['utm'])
         self.init_tree()
 
     def init_tree(self):

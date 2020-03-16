@@ -14,8 +14,9 @@ from pykotor.formats.tpc import TPC
 
 
 class Installation:
-    def __init__(self, directory):
+    def __init__(self, directory, name):
         self.root_path = directory
+        self.name = name
 
         self.chitin_path = self.root_path + "/chitin.key"
 
@@ -26,6 +27,9 @@ class Installation:
         self.chitin = None
 
         self.chitin = KEY.from_path(self.chitin_path)
+
+    def is_tsl(self):
+        return os.path.exists(self.root_path + "/swkotor2.exe")
 
     def get_module_list(self):
         modules = {}
@@ -73,18 +77,28 @@ class Installation:
         return models
 
     @staticmethod
-    def get_feats_list(installation, tsl=True):
+    def get_upgrades_list(installation):
+        # TODO
+        upgrades = k2_globals.upgrades
+        return upgrades
+
+    @staticmethod
+    def get_feats_list(installation):
+        # TODO
         feats = k2_globals.feats
         return feats
 
     @staticmethod
-    def get_powers_list(installation, tsl=True):
+    def get_powers_list(installation):
+        # TODO
         powers = k2_globals.powers
         return powers
 
     @staticmethod
     def get_appearance_list(installation):
-        # TODO: check override for 2da, have premade list for installation==None
+        # TODO: check override for 2da
+        if installation == None:
+            return k2_globals.appearances
         data = TwoDA.from_data(installation.chitin.fetch_resource("appearance", "2da"))
         labels = data.get_column_data("label")
         return labels

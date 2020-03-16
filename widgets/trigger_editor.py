@@ -4,19 +4,17 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QLineEdit, QSpinBox, QCheckBox
 
 from installation import Installation
 from pykotor.formats.gff import GFF, FieldType
+from pykotor.globals import resource_types
 from ui import trigger_editor
+from widgets.editor_widget import EditorWidget
 from widgets.tree_editor import AbstractTreeEditor
 
 
-class TriggerEditor(AbstractTreeEditor):
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-
-        self.ui = trigger_editor.Ui_Form()
-        self.ui.setupUi(self)
-
-        self.installation = self.window().active_installation
-
+class TriggerEditor(AbstractTreeEditor, EditorWidget):
+    def __init__(self, parent, utw=GFF(), file_path="", res_ref="untitled"):
+        EditorWidget.__init__(self, parent, trigger_editor, "trigger")
+        self.load(utw)
+        self.setup(file_path, res_ref, resource_types['utt'])
         self.init_tree()
 
     def init_tree(self):

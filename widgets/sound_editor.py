@@ -3,22 +3,20 @@ from PyQt5.QtGui import QBrush
 from PyQt5.QtWidgets import QWidget, QLineEdit, QSpinBox, QCheckBox, QComboBox, QPushButton
 
 from pykotor.formats.gff import List, GFF, FieldType, Struct
+from pykotor.globals import resource_types
 from ui import sound_editor
+from widgets.editor_widget import EditorWidget
 from widgets.playlist_dialog import PlaylistDialog
 from widgets.tree_editor import AbstractTreeEditor
 
 
-class SoundEditor(AbstractTreeEditor):
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-
-        self.ui = sound_editor.Ui_Form()
-        self.ui.setupUi(self)
-
-        self.installation = self.window().active_installation
-
+class SoundEditor(AbstractTreeEditor, EditorWidget):
+    def __init__(self, parent, utw=GFF(), file_path="", res_ref="untitled"):
         self.playlist = []
 
+        EditorWidget.__init__(self, parent, sound_editor, "sound")
+        self.load(utw)
+        self.setup(file_path, res_ref, resource_types['uts'])
         self.init_tree()
 
     def init_tree(self):
